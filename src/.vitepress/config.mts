@@ -3,11 +3,15 @@ import { defineConfig } from 'vitepress'
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
   title: "苏木",
-  description: "苏木的开发文档",
+  lang: 'zh-CN',
+  description: "The development documentation for sumu",
+  head: [['link', { rel: 'icon', href: '/images/favicon_sumu32x32.ico' }]],
+  base: '/site-vitepress/',
+
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
     nav: [
-      { text: 'Home', link: '/' },
+      { text: '首页', link: '/' },
       { text: 'Examples', link: '/markdown-examples' }
     ],
 
@@ -22,7 +26,13 @@ export default defineConfig({
     ],
 
     socialLinks: [
-      { icon: 'github', link: 'https://github.com/vuejs/vitepress' }
-    ]
+      { icon: 'github', link: 'https://github.com/docs-site/site-vitepress.git' }
+    ],
+	logo: '/images/sumu_src.png', // 导航栏标题的logo
+	returnToTopLabel: "返回顶部",  // 定义返回顶部按钮的标签，该标签仅在移动端视图中显示。
+	docFooter: {
+      prev: '上一篇',
+      next: '下一篇',
+    },
   }
 })
