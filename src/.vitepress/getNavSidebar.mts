@@ -16,20 +16,25 @@ function hasText(v: DefaultTheme.NavItem): v is DefaultTheme.NavItem & { text: s
  */
 interface SidebarGenerateConfig {
   /**
-   * @brief 需要遍历的目录
+   * 需要遍历的目录
    * @default 'articles'
    */
   dirName?: string
   /**
-   * @brief 忽略的文件名
+   * 忽略的文件名
    * @default 'index.md'
    */
   ignoreFileName?: string
   /**
-   * @brief 忽略的文件夹名称
+   * 忽略的文件夹名称
    * @default ['demo','asserts']
    */
   ignoreDirNames?: string[]
+  /**
+   * 是否打印调试信息
+   * @default false
+   */
+  debugPrint?: boolean
 }
 
 /**
@@ -53,15 +58,20 @@ interface SideBarItem {
  */
 interface NavGenerateConfig {
   /**
-   * @brief 需要遍历的目录
+   * 需要遍历的目录
    * @default 'articles'
    */
   dirName?: string
   /**
-   * @brief 最大遍历层级
+   * 最大遍历层级
    * @default 1
    */
   maxLevel?: number
+  /**
+   * 是否打印调试信息
+   * @default false
+   */
+  debugPrint?: boolean
 }
 
 /**
@@ -104,6 +114,7 @@ export function getSidebarData(sidebarGenerateConfig: SidebarGenerateConfig = {}
     dirName = sidebarGenerateConfig.dirName || 'articles',
     ignoreFileName = 'index.md', 
     ignoreDirNames = ['demo', 'asserts'],
+    debugPrint = false
   } = sidebarGenerateConfig
 
   // 获取目录的绝对路径
@@ -123,6 +134,14 @@ export function getSidebarData(sidebarGenerateConfig: SidebarGenerateConfig = {}
     obj[property] = arr
   })
 
+  if (debugPrint) {
+    console.log('Generated Sidebar Data:', JSON.stringify(obj, (key, value) => {
+      if (key === 'link') {
+        return value || 'undefined'
+      }
+      return value
+    }, 2))
+  }
   return obj
 }
 
@@ -209,11 +228,24 @@ function getSideBarItemTreeData(
  * @details 根据配置生成顶部导航栏数据
  */
 export function getNavData(navGenerateConfig: NavGenerateConfig = {}) {
-  const { dirName = navGenerateConfig.dirName || 'articles', maxLevel = 2 } = navGenerateConfig
+  const { 
+    dirName = navGenerateConfig.dirName || 'articles', 
+    maxLevel = navGenerateConfig.maxLevel || 2,
+    debugPrint = false
+  } = navGenerateConfig
   // 获取目录绝对路径
   const dirFullPath = resolve(__dirname, `../${dirName}`)
   // 生成导航数据
   const result = getNavDataArr(dirFullPath, 1, maxLevel)
+  
+  if (debugPrint) {
+    console.log('Generated Nav Data:', JSON.stringify(result, (key, value) => {
+      if (key === 'link' || key === 'activeMatch') {
+        return value || 'undefined'
+      }
+      return value
+    }, 2))
+  }
 
   return result
 }
