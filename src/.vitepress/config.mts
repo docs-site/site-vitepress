@@ -1,4 +1,5 @@
 import { defineConfig } from 'vitepress'
+import { generateSidebar } from 'vitepress-sidebar';
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
@@ -12,18 +13,17 @@ export default defineConfig({
     // https://vitepress.dev/reference/default-theme-config
     nav: [
       { text: '首页', link: '/' },
-      { text: 'Examples', link: '/examples/markdown-examples' }
+      { text: 'Examples', link: '/examples/markdown-examples' },
     ],
 
-    sidebar: [
-      {
-        text: 'Examples',
-        items: [
-          { text: 'Markdown Examples', link: '/examples/markdown-examples' },
-          { text: 'Runtime API Examples', link: '/examples/api-examples' }
-        ]
-      }
-    ],
+    sidebar: generateSidebar([{
+      // VitePress Sidebar's options here...
+	  documentRootPath: 'src',
+      scanStartPath: 'examples',
+      basePath: '/examples/',
+      resolvePath: '/examples/',
+      useTitleFromFileHeading: false
+    }]),
 
     socialLinks: [
       { icon: 'github', link: 'https://github.com/docs-site/site-vitepress.git' }
