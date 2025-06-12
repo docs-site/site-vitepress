@@ -124,8 +124,16 @@ export function getSidebarData(sidebarGenerateConfig: SidebarGenerateConfig = {}
 
   // 获取目录的绝对路径
   const dirFullPath = resolve(__dirname, `../${dirName}`)
-  // 读取目录下所有文件和子目录
-  const allDirAndFileNameArr = readdirSync(dirFullPath)
+  let allDirAndFileNameArr: string[] = []
+  try {
+    // 读取目录下所有文件和子目录
+    allDirAndFileNameArr = readdirSync(dirFullPath)
+  } catch (e) {
+    if (e.code === 'ENOENT') {
+      return {}
+    }
+    throw e
+  }
   const obj = {}
 
   // 遍历目录下的每个子项
@@ -320,8 +328,19 @@ function getNavDataArr(
   maxLevel: number,
   ignoreDirNames: string[] = []
 ): DefaultTheme.NavItem[] {
-  // 读取当前目录下所有文件和子目录
-  const allDirAndFileNameArr = readdirSync(dirFullPath)
+  let allDirAndFileNameArr: string[] = []
+  try {
+    // 读取当前目录下所有文件和子目录
+    allDirAndFileNameArr = readdirSync(dirFullPath)
+  } catch (e) {
+    if (e.code === 'ENOENT') {
+      return [{
+        text: '首页',
+        link: '/'
+      }]
+    }
+    throw e
+  }
   const result: DefaultTheme.NavItem[] = []
   // 遍历当前目录下的每个子项
   allDirAndFileNameArr.map((fileOrDirName: string, idx: number) => {
