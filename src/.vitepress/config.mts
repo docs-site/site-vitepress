@@ -9,6 +9,7 @@ export default defineConfig({
   description: "The development documentation for sumu",
   head: [['link', { rel: 'icon', href: '/images/favicon_sumu32x32.ico' }]],
   base: '/site-vitepress/',
+  lastUpdated: true, // 启用最后更新时间
 
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
@@ -41,5 +42,16 @@ export default defineConfig({
       prev: '上一篇',
       next: '下一篇',
     },
+	outline: {
+		label: '页面导航',
+		level: [2, 6],
+	},
+	search: {
+      provider: 'local' // 使用本地搜索
+    },
+	footer: {
+      message: '莫道桑榆晚 为霞尚满天.',
+      copyright: 'Copyright © 2019-present 苏木'
+    }
   }
 })

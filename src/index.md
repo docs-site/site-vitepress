@@ -15,11 +15,19 @@ hero:
       link: /examples/api-examples
 
 features:
-  - title: Feature A
-    details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
-  - title: Feature B
-    details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
-  - title: Feature C
-    details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
+  - icon: 📋
+    title: VitePress
+    details: 由 Vite 和 Vue 驱动的静态站点生成器
+    link: https://vitejs.cn/vitepress/
+
+  - icon: 📋
+    title: 苏木
+    details: 苏木的学习笔记
+    link: https://sumumm.github.io/
+
+  - icon: 📝
+    title: 苏木
+    details: 苏木的VuePress site
+    link: https://docs-site.github.io/site-vuepress/
 ---
 
