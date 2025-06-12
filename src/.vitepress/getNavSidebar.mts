@@ -334,10 +334,10 @@ function getNavDataArr(
     allDirAndFileNameArr = readdirSync(dirFullPath)
   } catch (e) {
     if (e.code === 'ENOENT') {
-      return [{
-        text: '首页',
-        link: '/'
-      }]
+      return [
+		{ text: '首页', link: '/' },
+	    { text: 'Examples', link: '/examples/markdown-examples' }
+	  ]
     }
     throw e
   }
