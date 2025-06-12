@@ -1,6 +1,6 @@
 import { defineConfig } from 'vitepress'
-import { generateSidebar } from 'vitepress-sidebar';
-
+// import { generateSidebar } from 'vitepress-sidebar';
+import { getSidebarData, getNavData } from './getNavSidebar.mts'
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
   title: "苏木",
@@ -11,20 +11,21 @@ export default defineConfig({
 
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
-    nav: [
-      { text: '首页', link: '/' },
-      { text: 'Examples', link: '/examples/markdown-examples' },
-    ],
+    // nav: [
+    //   { text: '首页', link: '/' },
+    //   { text: 'Examples', link: '/examples/markdown-examples' },
+    // ],
 
-    sidebar: generateSidebar([{
-      // VitePress Sidebar's options here...
-	  documentRootPath: 'src',
-      scanStartPath: 'examples',
-      basePath: '/examples/',
-      resolvePath: '/examples/',
-      useTitleFromFileHeading: false
-    }]),
-
+    // sidebar: generateSidebar([{
+    //   // VitePress Sidebar's options here...
+	//   documentRootPath: 'src',
+    //   scanStartPath: 'examples',
+    //   basePath: '/examples/',
+    //   resolvePath: '/examples/',
+    //   useTitleFromFileHeading: false
+    // }]),
+	nav: getNavData(),
+    sidebar: getSidebarData(),
     socialLinks: [
       { icon: 'github', link: 'https://github.com/docs-site/site-vitepress.git' }
     ],
