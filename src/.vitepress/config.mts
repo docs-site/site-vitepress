@@ -25,7 +25,7 @@ export default defineConfig({
     //   resolvePath: '/examples/',
     //   useTitleFromFileHeading: false
     // }]),
-	nav: getNavData({ dirName: 'sdoc', maxLevel: 2, debugPrint: true }),
+	nav: getNavData({ dirName: 'sdoc', maxLevel: 2, debugPrint: false }),
     sidebar: getSidebarData({ dirName: 'sdoc', debugPrint: false }),
     socialLinks: [
       { icon: 'github', link: 'https://github.com/docs-site/site-vitepress.git' }

@@ -283,8 +283,17 @@ export function getNavData(navGenerateConfig: NavGenerateConfig = {}) {
   // 获取目录绝对路径
   const dirFullPath = resolve(__dirname, `../${dirName}`)
   // 生成导航数据
-  const result = getNavDataArr(dirFullPath, 1, maxLevel, ignoreDirNames)
+  let result = getNavDataArr(dirFullPath, 1, maxLevel, ignoreDirNames)
   
+  // 如果结果为空，添加默认导航项
+  if (result.length === 0) {
+    result.push({
+      text: dirName,
+      link: `/${dirName}/`,
+      activeMatch: `/${dirName}/`
+    })
+  }
+
   if (debugPrint) {
     console.log('Generated Nav Data:', JSON.stringify(result, (key, value) => {
       if (key === 'link' || key === 'activeMatch') {
@@ -314,7 +323,6 @@ function getNavDataArr(
   // 读取当前目录下所有文件和子目录
   const allDirAndFileNameArr = readdirSync(dirFullPath)
   const result: DefaultTheme.NavItem[] = []
-
   // 遍历当前目录下的每个子项
   allDirAndFileNameArr.map((fileOrDirName: string, idx: number) => {
     const fileOrDirFullPath = join(dirFullPath, fileOrDirName)
@@ -324,7 +332,12 @@ function getNavDataArr(
     // 处理显示文本(去除前面的数字前缀)
     const text = fileOrDirName.match(/^[0-9]{2}-.+/) ? fileOrDirName.substring(3) : fileOrDirName
 
-    if (stats.isDirectory() && !ignoreDirNames.includes(fileOrDirName)) {
+    // 检查是否存在同名的markdown文件
+    const hasMatchingMdFile = allDirAndFileNameArr.some(name => 
+      name === `${fileOrDirName}.md` || name === fileOrDirName.replace(/^[0-9]{2}-/, '') + '.md'
+    )
+    
+    if (stats.isDirectory() && !ignoreDirNames.includes(fileOrDirName) && !hasMatchingMdFile) {
       // 处理目录项
       const dirData: any = {
         text,
@@ -349,15 +362,18 @@ function getNavDataArr(
       // 设置激活匹配规则
       dirData.activeMatch = link + '/'
       result.push(dirData)
-    } else if (isMarkdownFile(fileOrDirName)) {
-      // 处理文件项
-      const fileData: DefaultTheme.NavItem = {
-        text,
-        link,
-      }
-      // 设置激活匹配规则
-      fileData.activeMatch = link + '/'
-      result.push(fileData)
+    } else if (isMarkdownFile(fileOrDirName) && !hasMatchingMdFile) {
+	  if(0) // 不添加文档到导航栏
+      {
+		// 处理文件项
+		const fileData: DefaultTheme.NavItem = {
+			text,
+			link,
+		}
+		// 设置激活匹配规则
+		fileData.activeMatch = link + '/'
+		result.push(fileData)
+	  }
     }
   })
 
