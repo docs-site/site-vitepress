@@ -1,6 +1,7 @@
 import { defineConfig } from 'vitepress'
 // import { generateSidebar } from 'vitepress-sidebar';
 import { getSidebarData, getNavData } from './getNavSidebar.mts'
+
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
   title: "苏木",
@@ -24,14 +25,14 @@ export default defineConfig({
     //   resolvePath: '/examples/',
     //   useTitleFromFileHeading: false
     // }]),
-	nav: getNavData(),
-    sidebar: getSidebarData(),
+	nav: getNavData({ dirName: 'sdoc' }),
+    sidebar: getSidebarData({ dirName: 'sdoc' }),
     socialLinks: [
       { icon: 'github', link: 'https://github.com/docs-site/site-vitepress.git' }
     ],
 	logo: '/images/sumu_src.png', // 导航栏标题的logo
 	returnToTopLabel: "返回顶部",  // 定义返回顶部按钮的标签，该标签仅在移动端视图中显示。
-	docFooter: {
+    docFooter: {
       prev: '上一篇',
       next: '下一篇',
     },

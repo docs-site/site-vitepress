@@ -2,87 +2,121 @@ import { resolve, join, sep } from 'path'
 import { readdirSync, statSync } from 'fs'
 import { DefaultTheme } from 'vitepress'
 
+/**
+ * @brief 检查导航项是否包含text属性
+ * @param v 要检查的导航项
+ * @returns 如果包含text属性则返回true，否则返回false
+ */
 function hasText(v: DefaultTheme.NavItem): v is DefaultTheme.NavItem & { text: string } {
   return 'text' in v
 }
 
+/**
+ * @brief 侧边栏生成配置接口
+ */
 interface SidebarGenerateConfig {
   /**
-   * 需要遍历的目录. 默认:articles
+   * @brief 需要遍历的目录
+   * @default 'articles'
    */
   dirName?: string
   /**
-   * 忽略的文件名. 默认: index.md
+   * @brief 忽略的文件名
+   * @default 'index.md'
    */
   ignoreFileName?: string
   /**
-   * 忽略的文件夹名称. 默认: ['demo','asserts']
+   * @brief 忽略的文件夹名称
+   * @default ['demo','asserts']
    */
   ignoreDirNames?: string[]
 }
 
+/**
+ * @brief 侧边栏项接口
+ */
 interface SideBarItem {
+  /** @brief 显示文本 */
   text: string
+  /** @brief 是否可折叠 */
   collapsible?: boolean
+  /** @brief 是否默认折叠 */
   collapsed?: boolean
+  /** @brief 子项数组 */
   items?: SideBarItem[]
+  /** @brief 链接地址 */
   link?: string
 }
 
+/**
+ * @brief 导航生成配置接口
+ */
 interface NavGenerateConfig {
   /**
-   * 需要遍历的目录. 默认:articles
+   * @brief 需要遍历的目录
+   * @default 'articles'
    */
   dirName?: string
   /**
-   * 最大遍历层级. 默认:1
+   * @brief 最大遍历层级
+   * @default 1
    */
   maxLevel?: number
 }
 
 /**
- * 判断是否为markdown文件
+ * @brief 判断是否为markdown文件
  * @param fileName 文件名
- * @returns 有返回值则表示是markdown文件,否则不是
+ * @returns 如果是markdown文件返回true，否则返回false
+ * @note 通过检查文件扩展名是否为.md来判断
  */
 function isMarkdownFile(fileName: string) {
   return !!fileName.match(/.+\.md$/)
 }
 
-// 获取docs目录的完整名称(从根目录一直到docs目录)
+// 获取docs目录的完整路径(从根目录一直到docs目录)
 const docsDirFullPath = join(__dirname, '../')
-// 获取docs目录的完整长度
+// 获取docs目录的完整路径长度
 const docsDirFullPathLen = docsDirFullPath.length
 
 /**
- * 获取dirOrFileFullName中第一个/docs/后的所有内容
- *  如:
- * /a-root/docs/test 则 获取到 /test
- * /a-root-docs/docs/test 则 获取到 /test
- * /a-root-docs/docs/docs/test 则 获取到 /docs/test
- * @param dirOrFileFullName 文件或者目录名
- * @returns
+ * @brief 获取路径中/docs/后的部分
+ * @param dirOrFileFullName 文件或目录完整路径
+ * @returns /docs/后的路径部分
+ * @example 
+ * /a-root/docs/test → /test
+ * /a-root-docs/docs/test → /test
+ * /a-root-docs/docs/docs/test → /docs/test
  */
 function getDocsDirNameAfterStr(dirOrFileFullName: string) {
-  // 使用docsDirFullPathLen采用字符串截取的方式，避免多层目录都叫docs的问题
+  // 使用字符串截取方式避免多层目录都叫docs的问题
   return `${sep}${dirOrFileFullName.substring(docsDirFullPathLen)}`
 }
 
+/**
+ * @brief 生成侧边栏数据
+ * @param sidebarGenerateConfig 侧边栏生成配置
+ * @returns 生成的侧边栏数据对象
+ * @details 遍历指定目录，生成侧边栏树形结构数据
+ */
 export function getSidebarData(sidebarGenerateConfig: SidebarGenerateConfig = {}) {
   const {
-    dirName = 'articles',
-    ignoreFileName = 'index.md',
+    dirName = sidebarGenerateConfig.dirName || 'articles',
+    ignoreFileName = 'index.md', 
     ignoreDirNames = ['demo', 'asserts'],
   } = sidebarGenerateConfig
 
   // 获取目录的绝对路径
   const dirFullPath = resolve(__dirname, `../${dirName}`)
+  // 读取目录下所有文件和子目录
   const allDirAndFileNameArr = readdirSync(dirFullPath)
   const obj = {}
 
+  // 遍历目录下的每个子项
   allDirAndFileNameArr.map(dirName => {
     let subDirFullName = join(dirFullPath, dirName)
 
+    // 生成侧边栏项的key和对应的树形数据
     const property = getDocsDirNameAfterStr(subDirFullName).replace(/\\/g, '/') + '/'
     const arr = getSideBarItemTreeData(subDirFullName, 1, 3, ignoreFileName, ignoreDirNames)
 
@@ -92,6 +126,16 @@ export function getSidebarData(sidebarGenerateConfig: SidebarGenerateConfig = {}
   return obj
 }
 
+/**
+ * @brief 递归生成侧边栏树形数据
+ * @param dirFullPath 当前目录完整路径
+ * @param level 当前层级
+ * @param maxLevel 最大允许层级
+ * @param ignoreFileName 要忽略的文件名
+ * @param ignoreDirNames 要忽略的目录名数组
+ * @returns 生成的侧边栏项数组
+ * @details 递归遍历目录结构，生成树形侧边栏数据
+ */
 function getSideBarItemTreeData(
   dirFullPath: string,
   level: number,
@@ -99,34 +143,53 @@ function getSideBarItemTreeData(
   ignoreFileName: string,
   ignoreDirNames: string[]
 ): SideBarItem[] {
-  // 获取所有文件名和目录名
+  // 读取当前目录下所有文件和子目录
   const allDirAndFileNameArr = readdirSync(dirFullPath)
   const result: SideBarItem[] = []
+  
+  // 遍历当前目录下的每个子项
   allDirAndFileNameArr.map((fileOrDirName: string, idx: number) => {
     const fileOrDirFullPath = join(dirFullPath, fileOrDirName)
     const stats = statSync(fileOrDirFullPath)
+    
     if (stats.isDirectory()) {
+      // 处理目录项
       if (!ignoreDirNames.includes(fileOrDirName)) {
+        // 处理目录名格式(去除前面的数字前缀)
         const text = fileOrDirName.match(/^[0-9]{2}-.+/) ? fileOrDirName.substring(3) : fileOrDirName
-        // 当前为文件夹
+        
+        // 创建目录项数据
         const dirData: SideBarItem = {
           text,
           collapsed: false,
         }
+        
+        // 如果未达到最大层级，递归处理子目录
         if (level !== maxLevel) {
-          dirData.items = getSideBarItemTreeData(fileOrDirFullPath, level + 1, maxLevel, ignoreFileName, ignoreDirNames)
+          dirData.items = getSideBarItemTreeData(
+            fileOrDirFullPath, 
+            level + 1, 
+            maxLevel, 
+            ignoreFileName, 
+            ignoreDirNames
+          )
         }
+        
+        // 如果有子项，设置可折叠属性
         if (dirData.items) {
           dirData.collapsible = true
         }
+        
         result.push(dirData)
       }
     } else if (isMarkdownFile(fileOrDirName) && ignoreFileName !== fileOrDirName) {
-      // 当前为文件
+      // 处理文件项
       const matchResult = fileOrDirName.match(/(.+)\.md/)
       let text = matchResult ? matchResult[1] : fileOrDirName
+      // 处理文件名格式(去除前面的数字前缀)
       text = text.match(/^[0-9]{2}-.+/) ? text.substring(3) : text
 
+      // 创建文件项数据
       const fileData: SideBarItem = {
         text,
         link: getDocsDirNameAfterStr(fileOrDirFullPath).replace('.md', '').replace(/\\/g, '/'),
@@ -139,67 +202,76 @@ function getSideBarItemTreeData(
   return result
 }
 
+/**
+ * @brief 生成导航数据
+ * @param navGenerateConfig 导航生成配置
+ * @returns 生成的导航数据数组
+ * @details 根据配置生成顶部导航栏数据
+ */
 export function getNavData(navGenerateConfig: NavGenerateConfig = {}) {
-  const { dirName = 'articles', maxLevel = 2 } = navGenerateConfig
+  const { dirName = navGenerateConfig.dirName || 'articles', maxLevel = 2 } = navGenerateConfig
+  // 获取目录绝对路径
   const dirFullPath = resolve(__dirname, `../${dirName}`)
+  // 生成导航数据
   const result = getNavDataArr(dirFullPath, 1, maxLevel)
 
   return result
 }
 
 /**
- * 获取顶部导航数据
- *
- * @param   {string}     dirFullPath  当前需要遍历的目录绝对路径
- * @param   {number}     level        当前层级
- * @param   {number[]}   maxLevel     允许遍历的最大层级
- * @return  {NavItem[]}               导航数据数组
+ * @brief 递归生成导航数据数组
+ * @param dirFullPath 当前目录完整路径
+ * @param level 当前层级
+ * @param maxLevel 最大允许层级
+ * @returns 导航项数组
+ * @details 递归遍历目录结构，生成导航数据
  */
 function getNavDataArr(dirFullPath: string, level: number, maxLevel: number): DefaultTheme.NavItem[] {
-  // 获取所有文件名和目录名
+  // 读取当前目录下所有文件和子目录
   const allDirAndFileNameArr = readdirSync(dirFullPath)
   const result: DefaultTheme.NavItem[] = []
 
+  // 遍历当前目录下的每个子项
   allDirAndFileNameArr.map((fileOrDirName: string, idx: number) => {
     const fileOrDirFullPath = join(dirFullPath, fileOrDirName)
     const stats = statSync(fileOrDirFullPath)
+    // 生成链接路径
     const link = getDocsDirNameAfterStr(fileOrDirFullPath).replace('.md', '').replace(/\\/g, '/')
-
+    // 处理显示文本(去除前面的数字前缀)
     const text = fileOrDirName.match(/^[0-9]{2}-.+/) ? fileOrDirName.substring(3) : fileOrDirName
 
     if (stats.isDirectory()) {
-      // 当前为文件夹
+      // 处理目录项
       const dirData: any = {
         text,
         link: `${link}/`,
       }
 
       if (level !== maxLevel) {
-        // 获取下一层级的导航数据数组
+        // 获取下一层级的导航数据
         const arr = getNavDataArr(fileOrDirFullPath, level + 1, maxLevel)
-          // 先过滤出包含text属性的导航项
+          // 过滤出包含text属性的项
           .filter(hasText)
-          // 再过滤掉text为'index.md'的导航项
+          // 过滤掉index.md项
           .filter(v => v.text !== 'index.md')
-          
-        // 如果过滤后的数组不为空
+        
+        // 如果有子项，添加到items并移除link
         if (arr.length > 0) {
-          // 将过滤后的数组赋值给当前目录项的items属性
-          // @ts-ignore (忽略类型检查，因为items属性可能不在原始类型定义中)
           dirData.items = arr
-          // 删除当前目录项的link属性，因为现在它有子项
           delete dirData.link
         }
       }
 
+      // 设置激活匹配规则
       dirData.activeMatch = link + '/'
       result.push(dirData)
     } else if (isMarkdownFile(fileOrDirName)) {
-      // 当前为文件
+      // 处理文件项
       const fileData: DefaultTheme.NavItem = {
         text,
         link,
       }
+      // 设置激活匹配规则
       fileData.activeMatch = link + '/'
       result.push(fileData)
     }
