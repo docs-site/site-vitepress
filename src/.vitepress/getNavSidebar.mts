@@ -86,7 +86,7 @@ interface NavGenerateConfig {
  * @note 通过检查文件扩展名是否为.md来判断
  */
 function isMarkdownFile(fileName: string) {
-  return !!fileName.match(/.+\.md$/)
+  return !!fileName.match(/.+\.md$/) && !fileName.match(/README\.md$/i)
 }
 
 // 获取docs目录的完整路径(从根目录一直到docs目录)
