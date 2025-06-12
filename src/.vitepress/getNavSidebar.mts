@@ -174,32 +174,39 @@ function getSideBarItemTreeData(
     if (stats.isDirectory()) {
       // 处理目录项
       if (!ignoreDirNames.includes(fileOrDirName)) {
-        // 处理目录名格式(去除前面的数字前缀)
-        const text = fileOrDirName.match(/^[0-9]{2}-.+/) ? fileOrDirName.substring(3) : fileOrDirName
+        // 检查是否存在同名的markdown文件
+        const hasMatchingMdFile = allDirAndFileNameArr.some(name => 
+          name === `${fileOrDirName}.md` || name === fileOrDirName.replace(/^[0-9]{2}-/, '') + '.md'
+        )
         
-        // 创建目录项数据
-        const dirData: SideBarItem = {
-          text,
-          collapsed: false,
+        if (!hasMatchingMdFile) {
+          // 处理目录名格式(去除前面的数字前缀)
+          const text = fileOrDirName.match(/^[0-9]{2}-.+/) ? fileOrDirName.substring(3) : fileOrDirName
+          
+          // 创建目录项数据
+          const dirData: SideBarItem = {
+            text,
+            collapsed: false,
+          }
+        
+          // 如果未达到最大层级，递归处理子目录
+          if (level !== maxLevel) {
+            dirData.items = getSideBarItemTreeData(
+              fileOrDirFullPath, 
+              level + 1, 
+              maxLevel, 
+              ignoreFileName, 
+              ignoreDirNames
+            )
+          }
+          
+          // 如果有子项，设置可折叠属性
+          if (dirData.items) {
+            dirData.collapsible = true
+          }
+          
+          result.push(dirData)
         }
-        
-        // 如果未达到最大层级，递归处理子目录
-        if (level !== maxLevel) {
-          dirData.items = getSideBarItemTreeData(
-            fileOrDirFullPath, 
-            level + 1, 
-            maxLevel, 
-            ignoreFileName, 
-            ignoreDirNames
-          )
-        }
-        
-        // 如果有子项，设置可折叠属性
-        if (dirData.items) {
-          dirData.collapsible = true
-        }
-        
-        result.push(dirData)
       }
     } else if (isMarkdownFile(fileOrDirName) && ignoreFileName !== fileOrDirName) {
       // 处理文件项
