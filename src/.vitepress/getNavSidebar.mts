@@ -126,12 +126,21 @@ export function getSidebarData(sidebarGenerateConfig: SidebarGenerateConfig = {}
   // 遍历目录下的每个子项
   allDirAndFileNameArr.map(dirName => {
     let subDirFullName = join(dirFullPath, dirName)
+    const stats = statSync(subDirFullName)
 
     // 生成侧边栏项的key和对应的树形数据
-    const property = getDocsDirNameAfterStr(subDirFullName).replace(/\\/g, '/') + '/'
+    let property = getDocsDirNameAfterStr(subDirFullName).replace(/\\/g, '/')
+    if (stats.isDirectory()) {
+      property += '/'
+    }
     const arr = getSideBarItemTreeData(subDirFullName, 1, 3, ignoreFileName, ignoreDirNames)
 
-    obj[property] = arr
+    // 确保不重复添加相同的路径
+    if (!obj[property]) {
+      obj[property] = arr
+    } else {
+      obj[property] = [...obj[property], ...arr]
+    }
   })
 
   if (debugPrint) {
@@ -162,9 +171,34 @@ function getSideBarItemTreeData(
   ignoreFileName: string,
   ignoreDirNames: string[]
 ): SideBarItem[] {
-  // 读取当前目录下所有文件和子目录
-  const allDirAndFileNameArr = readdirSync(dirFullPath)
   const result: SideBarItem[] = []
+  let allDirAndFileNameArr: string[] = []
+
+  try {
+    const stats = statSync(dirFullPath)
+    if (stats.isDirectory()) {
+      // 读取当前目录下所有文件和子目录
+      allDirAndFileNameArr = readdirSync(dirFullPath)
+    } else if (isMarkdownFile(dirFullPath)) {
+      // 如果是单个markdown文件，直接处理
+      const fileName = dirFullPath.split(sep).pop() || ''
+      if (fileName !== ignoreFileName) {
+        const matchResult = fileName.match(/(.+)\.md/)
+        let text = matchResult ? matchResult[1] : fileName
+        text = text.match(/^[0-9]{2}-.+/) ? text.substring(3) : text
+        
+        result.push({
+          text,
+          link: getDocsDirNameAfterStr(dirFullPath).replace('.md', '').replace(/\\/g, '/')
+        })
+      }
+      return result
+    } else {
+      return result
+    }
+  } catch (e) {
+    return result
+  }
   
   // 遍历当前目录下的每个子项
   allDirAndFileNameArr.map((fileOrDirName: string, idx: number) => {
