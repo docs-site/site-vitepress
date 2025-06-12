@@ -1,0 +1,3 @@
+[submodule "src/sdoc"]
+	path = src/sdoc
+	url = git@github.com:docs-site/dev-docs.git
