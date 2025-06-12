@@ -68,6 +68,11 @@ interface NavGenerateConfig {
    */
   maxLevel?: number
   /**
+   * 忽略的文件夹名称
+   * @default ['demo', 'asserts', '.git', '.github']
+   */
+  ignoreDirNames?: string[]
+  /**
    * 是否打印调试信息
    * @default false
    */
@@ -113,7 +118,7 @@ export function getSidebarData(sidebarGenerateConfig: SidebarGenerateConfig = {}
   const {
     dirName = sidebarGenerateConfig.dirName || 'articles',
     ignoreFileName = 'index.md', 
-    ignoreDirNames = ['demo', 'asserts'],
+    ignoreDirNames = ['demo', 'asserts', '.git', '.github'],
     debugPrint = false
   } = sidebarGenerateConfig
 
@@ -272,12 +277,13 @@ export function getNavData(navGenerateConfig: NavGenerateConfig = {}) {
   const { 
     dirName = navGenerateConfig.dirName || 'articles', 
     maxLevel = navGenerateConfig.maxLevel || 2,
+    ignoreDirNames = ['demo', 'asserts', '.git', '.github'],
     debugPrint = false
   } = navGenerateConfig
   // 获取目录绝对路径
   const dirFullPath = resolve(__dirname, `../${dirName}`)
   // 生成导航数据
-  const result = getNavDataArr(dirFullPath, 1, maxLevel)
+  const result = getNavDataArr(dirFullPath, 1, maxLevel, ignoreDirNames)
   
   if (debugPrint) {
     console.log('Generated Nav Data:', JSON.stringify(result, (key, value) => {
@@ -299,7 +305,12 @@ export function getNavData(navGenerateConfig: NavGenerateConfig = {}) {
  * @returns 导航项数组
  * @details 递归遍历目录结构，生成导航数据
  */
-function getNavDataArr(dirFullPath: string, level: number, maxLevel: number): DefaultTheme.NavItem[] {
+function getNavDataArr(
+  dirFullPath: string, 
+  level: number, 
+  maxLevel: number,
+  ignoreDirNames: string[] = []
+): DefaultTheme.NavItem[] {
   // 读取当前目录下所有文件和子目录
   const allDirAndFileNameArr = readdirSync(dirFullPath)
   const result: DefaultTheme.NavItem[] = []
@@ -313,7 +324,7 @@ function getNavDataArr(dirFullPath: string, level: number, maxLevel: number): De
     // 处理显示文本(去除前面的数字前缀)
     const text = fileOrDirName.match(/^[0-9]{2}-.+/) ? fileOrDirName.substring(3) : fileOrDirName
 
-    if (stats.isDirectory()) {
+    if (stats.isDirectory() && !ignoreDirNames.includes(fileOrDirName)) {
       // 处理目录项
       const dirData: any = {
         text,
@@ -322,7 +333,7 @@ function getNavDataArr(dirFullPath: string, level: number, maxLevel: number): De
 
       if (level !== maxLevel) {
         // 获取下一层级的导航数据
-        const arr = getNavDataArr(fileOrDirFullPath, level + 1, maxLevel)
+        const arr = getNavDataArr(fileOrDirFullPath, level + 1, maxLevel, ignoreDirNames)
           // 过滤出包含text属性的项
           .filter(hasText)
           // 过滤掉index.md项
