@@ -67,16 +67,23 @@ jobs:
       - name: 获取相关提交信息
         id: get_commit_info
         run: |
-          # src/sdoc 获取sdoc的相关信息
-          cd ${{ github.workspace }}/src/sdoc # 切换到sdoc目录
-          echo "当前路径为 $(pwd)"
-          echo "SDOC_REPO_NAME=$(git config --get remote.origin.url | sed -E 's/(git@|https:\/\/)github.com(:|\/)([^\/]+)\/([^\.]+)(\.git)?/\3\/\4/')" >> $GITHUB_OUTPUT
-          echo "SDOC_COMMIT_ID=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
-          echo "SDOC_SHORT_SHA=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
-          echo "SDOC_COMMIT_MESSAGE=$(git log -1 --pretty=%B | head -n1)" >> $GITHUB_OUTPUT
+          # 获取所有子模块路径
+          SUBMODULE_PATHS=$(git config --file .gitmodules --name-only --get-regexp path | cut -d'.' -f2)
+          
+          # 遍历处理每个子模块 ${module^^}可以将变量转换为大写
+          for module in $SUBMODULE_PATHS; do
+            cd ${{ github.workspace }}/$module
+            echo "当前路径为 $(pwd)"
+            # 将路径中的/替换为_并转换为大写作为变量名
+            var_name=$(echo "$module" | tr '/' '_' | tr '[:lower:]' '[:upper:]')
+            echo "${var_name}_REPO_NAME=$(git config --get remote.origin.url | sed -E 's/(git@|https:\/\/)github.com(:|\/)([^\/]+)\/([^\.]+)(\.git)?/\3\/\4/')" >> $GITHUB_OUTPUT
+            echo "${var_name}_COMMIT_ID=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
+            echo "${var_name}_SHORT_SHA=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+            echo "${var_name}_COMMIT_MESSAGE=$(git log -1 --pretty=%B | head -n1)" >> $GITHUB_OUTPUT
+          done
 
           # 获取主仓库提交信息
-          cd ${{ github.workspace }} # 切换回工作目录
+          cd ${{ github.workspace }}
           echo "当前路径为 $(pwd)"
           SHORT_SHA=$(echo "${{ github.sha }}" | cut -c 1-7)
           echo "MAIN_SHORT_SHA=$SHORT_SHA" >> $GITHUB_OUTPUT
@@ -84,10 +91,14 @@ jobs:
       
       - name: 打印提交信息
         run: |
-          echo "src/sdoc Repository: ${{ steps.get_commit_info.outputs.SDOC_REPO_NAME }}"
-          echo "src/sdoc Commit ID : ${{ steps.get_commit_info.outputs.SDOC_COMMIT_ID }}"
-          echo "src/sdoc Short SHA : ${{ steps.get_commit_info.outputs.SDOC_SHORT_SHA }}"
-          echo "src/sdoc Commit Message: ${{ steps.get_commit_info.outputs.SDOC_COMMIT_MESSAGE }}"
+          # GitHub Actions的表达式语法不支持动态变量名，不能直接使用`${var_name}`这种变量插值
+          # 直接打印已知的子模块信息
+          echo "src/sdoc Repository: ${{ steps.get_commit_info.outputs.SRC_SDOC_REPO_NAME }}"
+          echo "src/sdoc Commit ID : ${{ steps.get_commit_info.outputs.SRC_SDOC_COMMIT_ID }}"
+          echo "src/sdoc Short SHA : ${{ steps.get_commit_info.outputs.SRC_SDOC_SHORT_SHA }}"
+          echo "src/sdoc Commit Message: ${{ steps.get_commit_info.outputs.SRC_SDOC_COMMIT_MESSAGE }}"
+          
+          # 打印主仓库信息
           echo "main Repository: ${{ github.repository }}"
           echo "main Commit ID : ${{ github.sha }}"
           echo "main Short SHA : ${{ steps.get_commit_info.outputs.MAIN_SHORT_SHA }}"
