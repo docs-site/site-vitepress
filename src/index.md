@@ -7,12 +7,15 @@ hero:
   text: "苏木"
   tagline: My great project tagline
   actions:
-    - theme: brand
-      text: Markdown Examples
-      link: /examples/markdown-examples
     - theme: alt
-      text: API Examples
-      link: /examples/api-examples
+      text: Node.js相关文档
+      link: /sdoc/01-nodejs/
+    - theme: alt
+      text: VitePress相关文档
+      link: /sdoc/02-VitePress/
+    - theme: alt
+      text: TypeScript相关文档
+      link: /sdoc/03-TypeScript/
 
 features:
   - icon: 📋
