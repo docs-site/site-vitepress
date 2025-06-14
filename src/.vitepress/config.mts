@@ -9,8 +9,14 @@ export default defineConfig({
   description: "The development documentation for sumu",
   head: [['link', { rel: 'icon', href: '/images/favicon_sumu32x32.ico' }]],
   base: '/site-vitepress/',
-  lastUpdated: true, // 启用最后更新时间
-
+  lastUpdated: true,     // 启用最后更新时间
+  markdown: {
+	lineNumbers: true,
+	math: true,          // 启用数学公式支持
+	image: {
+      lazyLoading: true, // 默认禁用图片懒加载
+    }
+  },
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
     // nav: [
