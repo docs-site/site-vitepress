@@ -7,7 +7,7 @@ export default defineConfig({
   title: "苏木",
   lang: 'zh-CN',
   description: "The development documentation for sumu",
-  head: [['link', { rel: 'icon', href: '/images/favicon_sumu32x32.ico' }]],
+  head: [['link', { rel: 'icon', href: '/site-vitepress/images/favicon_sumu32x32.ico' }]],
   base: '/site-vitepress/',
   lastUpdated: true,     // 启用最后更新时间
   markdown: {
