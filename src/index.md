@@ -8,14 +8,8 @@ hero:
   tagline: My great project tagline
   actions:
     - theme: alt
-      text: Node.js相关文档
-      link: /sdoc/01-nodejs/
-    - theme: alt
-      text: VitePress相关文档
-      link: /sdoc/02-VitePress/
-    - theme: alt
-      text: TypeScript相关文档
-      link: /sdoc/03-TypeScript/
+      text: 01-前端相关
+      link: /sdoc/01-前端相关/
 
 features:
   - icon: 📋

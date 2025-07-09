@@ -233,7 +233,7 @@ function getSideBarItemTreeData(
           // 创建目录项数据
           const dirData: SideBarItem = {
             text,
-            collapsed: false,
+            collapsed: true,
           }
         
           // 如果未达到最大层级，递归处理子目录
