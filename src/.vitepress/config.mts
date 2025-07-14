@@ -1,6 +1,7 @@
 import { defineConfig } from 'vitepress'
 import { generateSidebar } from 'vitepress-sidebar';
 import { getSidebarData, getNavData } from './getNavSidebar.mts'
+import markdownTagPlugin from './theme/markdownTagPlugin.mts'
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
@@ -15,6 +16,16 @@ export default defineConfig({
 	math: true,          // 启用数学公式支持
 	image: {
       lazyLoading: true, // 默认禁用图片懒加载
+    },
+    config: (md) => {
+      md.use(markdownTagPlugin) // 使用自定义的markdown插件
+    }
+  },
+  vue: {
+    template: {
+      compilerOptions: {
+        isCustomElement: (tag) => ['u', 'emp', 'del', 'kbd', 'wavy', 'psw'].includes(tag) // 允许这些标签作为自定义元素，防止报警告
+      }
     }
   },
   themeConfig: {

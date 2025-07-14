@@ -12,6 +12,15 @@ export default {
     })
   },
   enhanceApp({ app, router, siteData }) {
-    // ...
+    if (typeof window !== 'undefined') {
+      setTimeout(async () => {
+        try {
+          const { setupTabHandler } = await import('./scripts/tab-handler')
+          setupTabHandler()
+        } catch (e) {
+          console.error('初始化选项卡处理器失败:', e)
+        }
+      }, 0)
+    }
   }
 } satisfies Theme
