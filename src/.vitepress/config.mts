@@ -12,9 +12,9 @@ export default defineConfig({
   base: '/site-vitepress/',
   lastUpdated: true,     // 启用最后更新时间
   markdown: {
-	lineNumbers: true,
-	math: true,          // 启用数学公式支持
-	image: {
+    lineNumbers: true,
+    math: true,          // 启用数学公式支持
+    image: {
       lazyLoading: true, // 默认禁用图片懒加载
     },
     config: (md) => {
@@ -35,11 +35,15 @@ export default defineConfig({
     //   { text: 'Examples', link: '/examples/markdown-examples' },
     // ],
 
-	nav: getNavData({ dirName: 'sdoc', maxLevel: 2, debugPrint: false }),
+    nav: getNavData({ dirName: 'sdoc', maxLevel: 2, debugPrint: false }),
     sidebar: (() => {
-      const sidebarData = getSidebarData({ dirName: 'sdoc', debugPrint: false })
+      const sidebarData = getSidebarData({ 
+        dirName: 'sdoc', 
+        maxLevel: 6,
+        debugPrint: false 
+      })
       if (Object.keys(sidebarData).length === 0) {
-		// 若为空，则调用自动侧边栏插件扫描示例目录的侧边栏信息
+        // 若为空，则调用自动侧边栏插件扫描示例目录的侧边栏信息
         return generateSidebar([{
           documentRootPath: 'src',
           scanStartPath: 'examples',
@@ -53,20 +57,20 @@ export default defineConfig({
     socialLinks: [
       { icon: 'github', link: 'https://github.com/docs-site/site-vitepress.git' }
     ],
-	logo: '/images/sumu_src.png', // 导航栏标题的logo
-	returnToTopLabel: "返回顶部",  // 定义返回顶部按钮的标签，该标签仅在移动端视图中显示。
+    logo: '/images/sumu_src.png', // 导航栏标题的logo
+    returnToTopLabel: "返回顶部",  // 定义返回顶部按钮的标签，该标签仅在移动端视图中显示。
     docFooter: {
       prev: '上一篇',
       next: '下一篇',
     },
-	outline: {
-		label: '页面导航',
-		level: [2, 6],
-	},
-	search: {
+    outline: {
+      label: '页面导航',
+      level: [2, 6],
+    },
+    search: {
       provider: 'local' // 使用本地搜索
     },
-	footer: {
+    footer: {
       message: '莫道桑榆晚 为霞尚满天.',
       copyright: 'Copyright © 2019-present 苏木'
     }

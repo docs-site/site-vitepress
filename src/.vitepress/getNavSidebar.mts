@@ -2,6 +2,29 @@ import { resolve, join, sep } from 'path'
 import { readdirSync, statSync } from 'fs'
 import { DefaultTheme } from 'vitepress'
 
+
+// 控制台颜色常量
+const COLOR = {
+  RED: '\x1b[31m',
+  YELLOW: '\x1b[33m',
+  RESET: '\x1b[0m'
+} as const
+
+// 配置常量
+const CONFIG = {
+  NAV: {
+    DEFAULT_LEVEL: 2,
+    MAX_LEVEL: 3
+  },
+  SIDEBAR: {
+    DEFAULT_LEVEL: 3,
+    MAX_LEVEL: 6
+  }
+} as const
+
+// 默认忽略的目录
+const DEFAULT_IGNORE_DIRS = ['demo', 'asserts', '.git', '.github'] as const
+
 /**
  * @brief 检查导航项是否包含text属性
  * @param v 要检查的导航项
@@ -30,6 +53,11 @@ interface SidebarGenerateConfig {
    * @default ['demo','asserts']
    */
   ignoreDirNames?: string[]
+  /**
+   * 最大扫描目录深度
+   * @default 3
+   */
+  maxLevel?: number // 覆盖SIDEBAR_MAX_LEVEL
   /**
    * 是否打印调试信息
    * @default false
@@ -115,12 +143,21 @@ function getDocsDirNameAfterStr(dirOrFileFullName: string) {
  * @details 遍历指定目录，生成侧边栏树形结构数据
  */
 export function getSidebarData(sidebarGenerateConfig: SidebarGenerateConfig = {}) {
-  const {
+  let {
     dirName = sidebarGenerateConfig.dirName || 'articles',
-    ignoreFileName = 'index.md', 
-    ignoreDirNames = ['demo', 'asserts', '.git', '.github'],
+    ignoreFileName = 'index.md',
+    ignoreDirNames = [...DEFAULT_IGNORE_DIRS],
+    maxLevel = sidebarGenerateConfig.maxLevel || CONFIG.SIDEBAR.DEFAULT_LEVEL,
     debugPrint = false
   } = sidebarGenerateConfig
+
+  // 验证侧边栏层级
+  if (maxLevel > CONFIG.SIDEBAR.MAX_LEVEL) {
+    console.warn(
+      `${COLOR.YELLOW}[WARN] Sidebar level ${maxLevel} exceeds max limit ${CONFIG.SIDEBAR.MAX_LEVEL}, using default ${CONFIG.SIDEBAR.DEFAULT_LEVEL}${COLOR.RESET}`
+    )
+    maxLevel = CONFIG.SIDEBAR.DEFAULT_LEVEL
+  }
 
   // 获取目录的绝对路径
   const dirFullPath = resolve(__dirname, `../${dirName}`)
@@ -146,7 +183,7 @@ export function getSidebarData(sidebarGenerateConfig: SidebarGenerateConfig = {}
     if (stats.isDirectory()) {
       property += '/'
     }
-    const arr = getSideBarItemTreeData(subDirFullName, 1, 3, ignoreFileName, ignoreDirNames)
+    const arr = getSideBarItemTreeData(subDirFullName, 1, maxLevel, ignoreFileName, ignoreDirNames)
 
     // 确保不重复添加相同的路径
     if (!obj[property]) {
@@ -199,7 +236,7 @@ function getSideBarItemTreeData(
         const matchResult = fileName.match(/(.+)\.md/)
         let text = matchResult ? matchResult[1] : fileName
         text = text.match(/^[0-9]{2}-.+/) ? text.substring(3) : text
-        
+
         result.push({
           text,
           link: getDocsDirNameAfterStr(dirFullPath).replace('.md', '').replace(/\\/g, '/')
@@ -212,50 +249,55 @@ function getSideBarItemTreeData(
   } catch (e) {
     return result
   }
-  
-  // 遍历当前目录下的每个子项
-  allDirAndFileNameArr.map((fileOrDirName: string, idx: number) => {
+
+  // 先处理目录
+  allDirAndFileNameArr.forEach((fileOrDirName: string) => {
     const fileOrDirFullPath = join(dirFullPath, fileOrDirName)
     const stats = statSync(fileOrDirFullPath)
-    
-    if (stats.isDirectory()) {
-      // 处理目录项
-      if (!ignoreDirNames.includes(fileOrDirName)) {
-        // 检查是否存在同名的markdown文件
-        const hasMatchingMdFile = allDirAndFileNameArr.some(name => 
-          name === `${fileOrDirName}.md` || name === fileOrDirName.replace(/^[0-9]{2}-/, '') + '.md'
-        )
-        
-        if (!hasMatchingMdFile) {
-          // 处理目录名格式(去除前面的数字前缀)
-          const text = fileOrDirName.match(/^[0-9]{2}-.+/) ? fileOrDirName.substring(3) : fileOrDirName
-          
-          // 创建目录项数据
-          const dirData: SideBarItem = {
-            text,
-            collapsed: true,
-          }
-        
-          // 如果未达到最大层级，递归处理子目录
-          if (level !== maxLevel) {
-            dirData.items = getSideBarItemTreeData(
-              fileOrDirFullPath, 
-              level + 1, 
-              maxLevel, 
-              ignoreFileName, 
-              ignoreDirNames
-            )
-          }
-          
-          // 如果有子项，设置可折叠属性
-          if (dirData.items) {
-            dirData.collapsible = true
-          }
-          
-          result.push(dirData)
+
+    if (stats.isDirectory() && !ignoreDirNames.includes(fileOrDirName)) {
+      // 检查是否存在同名的markdown文件
+      const hasMatchingMdFile = allDirAndFileNameArr.some(name =>
+        name === `${fileOrDirName}.md` || name === fileOrDirName.replace(/^[0-9]{2}-/, '') + '.md'
+      )
+
+      if (!hasMatchingMdFile) {
+        // 处理目录名格式(去除前面的数字前缀)
+        const text = fileOrDirName.match(/^[0-9]{2}-.+/) ? fileOrDirName.substring(3) : fileOrDirName
+
+        // 创建目录项数据
+        const dirData: SideBarItem = {
+          text,
+          collapsed: true,
         }
+
+        // 如果未达到最大层级，递归处理子目录
+        if (level !== maxLevel) {
+          dirData.items = getSideBarItemTreeData(
+            fileOrDirFullPath,
+            level + 1,
+            maxLevel,
+            ignoreFileName,
+            ignoreDirNames
+          )
+        }
+
+        // 如果有子项，设置可折叠属性
+        if (dirData.items) {
+          dirData.collapsible = true
+        }
+
+        result.push(dirData)
       }
-    } else if (isMarkdownFile(fileOrDirName) && ignoreFileName !== fileOrDirName) {
+    }
+  })
+
+  // 后处理文件
+  allDirAndFileNameArr.forEach((fileOrDirName: string) => {
+    const fileOrDirFullPath = join(dirFullPath, fileOrDirName)
+    const stats = statSync(fileOrDirFullPath)
+
+    if (isMarkdownFile(fileOrDirName) && ignoreFileName !== fileOrDirName) {
       // 处理文件项
       const matchResult = fileOrDirName.match(/(.+)\.md/)
       let text = matchResult ? matchResult[1] : fileOrDirName
@@ -282,17 +324,25 @@ function getSideBarItemTreeData(
  * @details 根据配置生成顶部导航栏数据
  */
 export function getNavData(navGenerateConfig: NavGenerateConfig = {}) {
-  const { 
-    dirName = navGenerateConfig.dirName || 'articles', 
-    maxLevel = navGenerateConfig.maxLevel || 2,
-    ignoreDirNames = ['demo', 'asserts', '.git', '.github'],
+  let {
+    dirName = navGenerateConfig.dirName || 'articles',
+    maxLevel = navGenerateConfig.maxLevel || CONFIG.NAV.DEFAULT_LEVEL,
+    ignoreDirNames = [...DEFAULT_IGNORE_DIRS],
     debugPrint = false
   } = navGenerateConfig
+
+  // 验证导航栏层级
+  if (maxLevel > CONFIG.NAV.MAX_LEVEL) {
+    console.warn(
+      `${COLOR.YELLOW}[WARN] Nav level ${maxLevel} exceeds max limit ${CONFIG.NAV.MAX_LEVEL}, using default ${CONFIG.NAV.DEFAULT_LEVEL}${COLOR.RESET}`
+    )
+    maxLevel = CONFIG.NAV.DEFAULT_LEVEL
+  }
   // 获取目录绝对路径
   const dirFullPath = resolve(__dirname, `../${dirName}`)
   // 生成导航数据
   let result = getNavDataArr(dirFullPath, 1, maxLevel, ignoreDirNames)
-  
+
   // 如果结果为空，添加默认导航项
   if (result.length === 0) {
     result.push({
@@ -323,8 +373,8 @@ export function getNavData(navGenerateConfig: NavGenerateConfig = {}) {
  * @details 递归遍历目录结构，生成导航数据
  */
 function getNavDataArr(
-  dirFullPath: string, 
-  level: number, 
+  dirFullPath: string,
+  level: number,
   maxLevel: number,
   ignoreDirNames: string[] = []
 ): DefaultTheme.NavItem[] {
@@ -332,12 +382,13 @@ function getNavDataArr(
   try {
     // 读取当前目录下所有文件和子目录
     allDirAndFileNameArr = readdirSync(dirFullPath)
-  } catch (e) {
+  }
+  catch (e) {
     if (e.code === 'ENOENT') {
       return [
-		{ text: '首页', link: '/' },
-	    { text: 'Examples', link: '/examples/markdown-examples' }
-	  ]
+        { text: '首页', link: '/' },
+        { text: 'Examples', link: '/examples/markdown-examples' }
+      ]
     }
     throw e
   }
@@ -352,10 +403,10 @@ function getNavDataArr(
     const text = fileOrDirName.match(/^[0-9]{2}-.+/) ? fileOrDirName.substring(3) : fileOrDirName
 
     // 检查是否存在同名的markdown文件
-    const hasMatchingMdFile = allDirAndFileNameArr.some(name => 
+    const hasMatchingMdFile = allDirAndFileNameArr.some(name =>
       name === `${fileOrDirName}.md` || name === fileOrDirName.replace(/^[0-9]{2}-/, '') + '.md'
     )
-    
+
     if (stats.isDirectory() && !ignoreDirNames.includes(fileOrDirName) && !hasMatchingMdFile) {
       // 处理目录项
       const dirData: any = {
@@ -370,7 +421,7 @@ function getNavDataArr(
           .filter(hasText)
           // 过滤掉index.md项
           .filter(v => v.text !== 'index.md')
-        
+
         // 如果有子项，添加到items并移除link
         if (arr.length > 0) {
           dirData.items = arr
@@ -381,18 +432,18 @@ function getNavDataArr(
       // 设置激活匹配规则
       dirData.activeMatch = link + '/'
       result.push(dirData)
-    } else if (isMarkdownFile(fileOrDirName) && !hasMatchingMdFile) {
-	  if(0) // 不添加文档到导航栏
-      {
-		// 处理文件项
-		const fileData: DefaultTheme.NavItem = {
-			text,
-			link,
-		}
-		// 设置激活匹配规则
-		fileData.activeMatch = link + '/'
-		result.push(fileData)
-	  }
+    }
+    else if (isMarkdownFile(fileOrDirName) && !hasMatchingMdFile) {
+      if (0) {// 不添加文档到导航栏
+        // 处理文件项
+        const fileData: DefaultTheme.NavItem = {
+          text,
+          link,
+        }
+        // 设置激活匹配规则
+        fileData.activeMatch = link + '/'
+        result.push(fileData)
+      }
     }
   })
 
