@@ -2,7 +2,6 @@ import { resolve, join, sep } from 'path'
 import { readdirSync, statSync } from 'fs'
 import { DefaultTheme } from 'vitepress'
 
-
 // 控制台颜色常量
 const COLOR = {
   RED: '\x1b[31m',
@@ -23,7 +22,9 @@ const CONFIG = {
 } as const
 
 // 默认忽略的目录
-const DEFAULT_IGNORE_DIRS = ['demo', 'asserts', '.git', '.github'] as const
+const DEFAULT_IGNORE_DIRS = ['demo', 'asserts', '.git', '.github', '.docsify'] as const
+// 默认忽略的文件 [新增]
+const DEFAULT_IGNORE_FILES = ['index.md', '_sidebar.md'] as const
 
 /**
  * @brief 检查导航项是否包含text属性
@@ -44,10 +45,10 @@ interface SidebarGenerateConfig {
    */
   dirName?: string
   /**
-   * 忽略的文件名
-   * @default 'index.md'
+   * 忽略的文件名 [修改为数组]
+   * @default ['index.md']
    */
-  ignoreFileName?: string
+  ignoreFileNames?: string[]
   /**
    * 忽略的文件夹名称
    * @default ['demo','asserts']
@@ -101,6 +102,11 @@ interface NavGenerateConfig {
    */
   ignoreDirNames?: string[]
   /**
+   * 忽略的文件名 [新增]
+   * @default ['index.md']
+   */
+  ignoreFileNames?: string[]
+  /**
    * 是否打印调试信息
    * @default false
    */
@@ -145,8 +151,9 @@ function getDocsDirNameAfterStr(dirOrFileFullName: string) {
 export function getSidebarData(sidebarGenerateConfig: SidebarGenerateConfig = {}) {
   let {
     dirName = sidebarGenerateConfig.dirName || 'articles',
-    ignoreFileName = 'index.md',
-    ignoreDirNames = [...DEFAULT_IGNORE_DIRS],
+    // 修改：使用数组并合并默认值 [重要修改]
+    ignoreFileNames = [...DEFAULT_IGNORE_FILES, ...(sidebarGenerateConfig.ignoreFileNames || [])],
+    ignoreDirNames = [...DEFAULT_IGNORE_DIRS, ...(sidebarGenerateConfig.ignoreDirNames || [])],
     maxLevel = sidebarGenerateConfig.maxLevel || CONFIG.SIDEBAR.DEFAULT_LEVEL,
     debugPrint = false
   } = sidebarGenerateConfig
@@ -183,7 +190,8 @@ export function getSidebarData(sidebarGenerateConfig: SidebarGenerateConfig = {}
     if (stats.isDirectory()) {
       property += '/'
     }
-    const arr = getSideBarItemTreeData(subDirFullName, 1, maxLevel, ignoreFileName, ignoreDirNames)
+    // 修改：传递ignoreFileNames数组 [重要修改]
+    const arr = getSideBarItemTreeData(subDirFullName, 1, maxLevel, ignoreFileNames, ignoreDirNames)
 
     // 确保不重复添加相同的路径
     if (!obj[property]) {
@@ -209,7 +217,7 @@ export function getSidebarData(sidebarGenerateConfig: SidebarGenerateConfig = {}
  * @param dirFullPath 当前目录完整路径
  * @param level 当前层级
  * @param maxLevel 最大允许层级
- * @param ignoreFileName 要忽略的文件名
+ * @param ignoreFileNames 要忽略的文件名数组 [修改为数组]
  * @param ignoreDirNames 要忽略的目录名数组
  * @returns 生成的侧边栏项数组
  * @details 递归遍历目录结构，生成树形侧边栏数据
@@ -218,7 +226,7 @@ function getSideBarItemTreeData(
   dirFullPath: string,
   level: number,
   maxLevel: number,
-  ignoreFileName: string,
+  ignoreFileNames: string[], // 修改：数组类型
   ignoreDirNames: string[]
 ): SideBarItem[] {
   const result: SideBarItem[] = []
@@ -232,7 +240,8 @@ function getSideBarItemTreeData(
     } else if (isMarkdownFile(dirFullPath)) {
       // 如果是单个markdown文件，直接处理
       const fileName = dirFullPath.split(sep).pop() || ''
-      if (fileName !== ignoreFileName) {
+      // 修改：检查是否在忽略列表中 [重要修改]
+      if (!ignoreFileNames.includes(fileName)) {
         const matchResult = fileName.match(/(.+)\.md/)
         let text = matchResult ? matchResult[1] : fileName
         text = text.match(/^[0-9]{2}-.+/) ? text.substring(3) : text
@@ -258,7 +267,9 @@ function getSideBarItemTreeData(
     if (stats.isDirectory() && !ignoreDirNames.includes(fileOrDirName)) {
       // 检查是否存在同名的markdown文件
       const hasMatchingMdFile = allDirAndFileNameArr.some(name =>
-        name === `${fileOrDirName}.md` || name === fileOrDirName.replace(/^[0-9]{2}-/, '') + '.md'
+        (name === `${fileOrDirName}.md` || name === fileOrDirName.replace(/^[0-9]{2}-/, '') + '.md') &&
+        // 修改：检查同名文件是否在忽略列表中 [重要修改]
+        !ignoreFileNames.includes(name)
       )
 
       if (!hasMatchingMdFile) {
@@ -277,7 +288,7 @@ function getSideBarItemTreeData(
             fileOrDirFullPath,
             level + 1,
             maxLevel,
-            ignoreFileName,
+            ignoreFileNames,
             ignoreDirNames
           )
         }
@@ -297,7 +308,8 @@ function getSideBarItemTreeData(
     const fileOrDirFullPath = join(dirFullPath, fileOrDirName)
     const stats = statSync(fileOrDirFullPath)
 
-    if (isMarkdownFile(fileOrDirName) && ignoreFileName !== fileOrDirName) {
+    // 修改：检查是否在忽略列表中 [重要修改]
+    if (isMarkdownFile(fileOrDirName) && !ignoreFileNames.includes(fileOrDirName)) {
       // 处理文件项
       const matchResult = fileOrDirName.match(/(.+)\.md/)
       let text = matchResult ? matchResult[1] : fileOrDirName
@@ -327,7 +339,9 @@ export function getNavData(navGenerateConfig: NavGenerateConfig = {}) {
   let {
     dirName = navGenerateConfig.dirName || 'articles',
     maxLevel = navGenerateConfig.maxLevel || CONFIG.NAV.DEFAULT_LEVEL,
-    ignoreDirNames = [...DEFAULT_IGNORE_DIRS],
+    ignoreDirNames = [...DEFAULT_IGNORE_DIRS, ...(navGenerateConfig.ignoreDirNames || [])],
+    // 新增：忽略文件配置 [重要修改]
+    ignoreFileNames = [...DEFAULT_IGNORE_FILES, ...(navGenerateConfig.ignoreFileNames || [])],
     debugPrint = false
   } = navGenerateConfig
 
@@ -340,8 +354,8 @@ export function getNavData(navGenerateConfig: NavGenerateConfig = {}) {
   }
   // 获取目录绝对路径
   const dirFullPath = resolve(__dirname, `../${dirName}`)
-  // 生成导航数据
-  let result = getNavDataArr(dirFullPath, 1, maxLevel, ignoreDirNames)
+  // 生成导航数据 [修改：传递ignoreFileNames]
+  let result = getNavDataArr(dirFullPath, 1, maxLevel, ignoreDirNames, ignoreFileNames)
 
   // 如果结果为空，添加默认导航项
   if (result.length === 0) {
@@ -369,6 +383,8 @@ export function getNavData(navGenerateConfig: NavGenerateConfig = {}) {
  * @param dirFullPath 当前目录完整路径
  * @param level 当前层级
  * @param maxLevel 最大允许层级
+ * @param ignoreDirNames 要忽略的目录名数组
+ * @param ignoreFileNames 要忽略的文件名数组 [新增]
  * @returns 导航项数组
  * @details 递归遍历目录结构，生成导航数据
  */
@@ -376,7 +392,8 @@ function getNavDataArr(
   dirFullPath: string,
   level: number,
   maxLevel: number,
-  ignoreDirNames: string[] = []
+  ignoreDirNames: string[] = [],
+  ignoreFileNames: string[] = [] // 新增：忽略文件数组
 ): DefaultTheme.NavItem[] {
   let allDirAndFileNameArr: string[] = []
   try {
@@ -402,9 +419,10 @@ function getNavDataArr(
     // 处理显示文本(去除前面的数字前缀)
     const text = fileOrDirName.match(/^[0-9]{2}-.+/) ? fileOrDirName.substring(3) : fileOrDirName
 
-    // 检查是否存在同名的markdown文件
+    // 检查是否存在同名的markdown文件 [修改：添加忽略文件检查]
     const hasMatchingMdFile = allDirAndFileNameArr.some(name =>
-      name === `${fileOrDirName}.md` || name === fileOrDirName.replace(/^[0-9]{2}-/, '') + '.md'
+      (name === `${fileOrDirName}.md` || name === fileOrDirName.replace(/^[0-9]{2}-/, '') + '.md') &&
+      !ignoreFileNames.includes(name) // 新增：忽略特定文件
     )
 
     if (stats.isDirectory() && !ignoreDirNames.includes(fileOrDirName) && !hasMatchingMdFile) {
@@ -415,8 +433,8 @@ function getNavDataArr(
       }
 
       if (level !== maxLevel) {
-        // 获取下一层级的导航数据
-        const arr = getNavDataArr(fileOrDirFullPath, level + 1, maxLevel, ignoreDirNames)
+        // 获取下一层级的导航数据 [修改：传递ignoreFileNames]
+        const arr = getNavDataArr(fileOrDirFullPath, level + 1, maxLevel, ignoreDirNames, ignoreFileNames)
           // 过滤出包含text属性的项
           .filter(hasText)
           // 过滤掉index.md项
