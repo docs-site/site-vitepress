@@ -46,6 +46,7 @@
 @import './styles/folding.css';          /* Folding styles */
 @import './styles/inline-labels.css';    /* inline-labels styles */
 @import './styles/tabs.css';             /* tabs styles */
+@import './styles/vp-code.css';             /* vp-ode styles */
 
 :root {
   --vp-c-default-1: var(--vp-c-gray-1);
