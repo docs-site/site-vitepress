@@ -2,6 +2,8 @@
 import { h } from 'vue'
 import type { Theme } from 'vitepress'
 import DefaultTheme from 'vitepress/theme'
+
+import Linkcard from "./components/Linkcard.vue"
 import './style.css'
 
 export default {
@@ -22,5 +24,7 @@ export default {
         }
       }, 0)
     }
+    // 注册组件
+    app.component('Linkcard' , Linkcard)
   }
 } satisfies Theme
