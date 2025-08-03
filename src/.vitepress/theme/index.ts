@@ -4,6 +4,8 @@ import type { Theme } from 'vitepress'
 import DefaultTheme from 'vitepress/theme'
 
 import Linkcard from "./components/Linkcard.vue"
+import HomeUnderline from "./components/HomeUnderline.vue"
+
 import './style.css'
 
 export default {
@@ -26,5 +28,6 @@ export default {
     }
     // 注册组件
     app.component('Linkcard' , Linkcard)
+    app.component('HomeUnderline' , HomeUnderline)
   }
 } satisfies Theme

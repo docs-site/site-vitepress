@@ -4,7 +4,7 @@ layout: home
 
 hero:
   name: ""
-  text: "苏木"
+  text: 苏木 # 副标题文本前半部分，下划线会作用于这里
   tagline: My great project tagline
   actions:
     - theme: brand
@@ -37,3 +37,4 @@ features:
     link: https://docs-site.github.io/site-hexo/
 ---
 
+<HomeUnderline />
