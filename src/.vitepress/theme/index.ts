@@ -5,6 +5,7 @@ import DefaultTheme from 'vitepress/theme'
 
 import Linkcard from "./components/Linkcard.vue"
 import HomeUnderline from "./components/HomeUnderline.vue"
+import ArticleMetadata from "./components/ArticleMetadata.vue"
 import MainLayout from './layout/MainLayout.vue' // 导入布局组件
 
 import './style.css'
@@ -26,5 +27,6 @@ export default {
     // 注册组件
     app.component('Linkcard' , Linkcard)
     app.component('HomeUnderline' , HomeUnderline)
+    app.component('ArticleMetadata' , ArticleMetadata)
   }
 } satisfies Theme
