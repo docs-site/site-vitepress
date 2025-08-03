@@ -8,6 +8,11 @@ import backtotop from "../components/BackTop.vue";
 <template>
   <DefaultTheme.Layout v-bind="$attrs">
 
+		<!-- doc-before插槽 -->
+    <template #doc-before>
+      <ArticleMetadata />
+    </template>
+
     <!-- doc-footer-before插槽 -->
     <template #doc-footer-before>
       <backtotop />

@@ -2,7 +2,6 @@ import { defineConfig } from 'vitepress'
 import { generateSidebar } from 'vitepress-sidebar';
 import { getSidebarData, getNavData } from './getNavSidebar.mts'
 import markdownTagPlugin from './theme/markdownTagPlugin.mts'
-import articleMetadataPlugin from './theme/markdownArticleMetadataPlugin.mts'
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
@@ -20,7 +19,6 @@ export default defineConfig({
     },
     config: (md) => {
       md.use(markdownTagPlugin) // 使用自定义的markdown插件
-      md.use(articleMetadataPlugin) // 使用ArticleMetadata插件
     }
   },
   vue: {
