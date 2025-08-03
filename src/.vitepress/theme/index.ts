@@ -31,7 +31,7 @@ export default {
     if (typeof window !== 'undefined') {
       setTimeout(async () => {
         try {
-          const { setupTabHandler } = await import('./scripts/tab-handler')
+          const { setupTabHandler } = await import('./tags/scripts/tab-handler')
           setupTabHandler()
         } catch (e) {
           console.error('初始化选项卡处理器失败:', e)

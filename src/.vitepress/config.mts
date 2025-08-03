@@ -1,7 +1,7 @@
 import { defineConfig } from 'vitepress'
 import { generateSidebar } from 'vitepress-sidebar';
 import { getSidebarData, getNavData } from './getNavSidebar.mts'
-import markdownTagPlugin from './theme/markdownTagPlugin.mts'
+import markdownTagPlugin from './theme/tags/md-tags.mjs'
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({

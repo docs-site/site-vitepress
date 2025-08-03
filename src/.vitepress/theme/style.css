@@ -43,9 +43,9 @@
  *   in custom container, badges, etc.
  * -------------------------------------------------------------------------- */
 
-@import './styles/folding.css';          /* Folding styles */
-@import './styles/inline-labels.css';    /* inline-labels styles */
-@import './styles/tabs.css';             /* tabs styles */
+@import './tags/css/folding.css';          /* Folding styles */
+@import './tags/css/inline-labels.css';    /* inline-labels styles */
+@import './tags/css/tabs.css';             /* tabs styles */
 @import './styles/vp-code.css';             /* vp-ode styles */
 
 :root {
