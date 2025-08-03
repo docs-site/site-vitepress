@@ -8,6 +8,9 @@ hero:
   tagline: My great project tagline
   actions:
     - theme: brand
+      text: 我的导航
+      link: /Navigation/
+    - theme: brand
       text: site-vitepress
       link: https://github.com/docs-site/site-vitepress
     - theme: alt

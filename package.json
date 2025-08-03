@@ -5,6 +5,7 @@
     "docs:preview": "vitepress preview src"
   },
   "devDependencies": {
+    "@mdit-vue/shared": "^2.1.4",
     "@types/node": "^24.0.1",
     "markdown-it-mathjax3": "^4.3.2",
     "vitepress": "^1.6.3",
