@@ -2,9 +2,15 @@ import { defineConfig } from 'vitepress'
 import { generateSidebar } from 'vitepress-sidebar';
 import { getSidebarData, getNavData } from './getNavSidebar.mts'
 import markdownTagPlugin from './theme/tags/md-tags.mjs'
+import { catalogPlugin } from './theme/plugins/catalog-plugin'
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
+  vite: {
+    plugins: [
+      catalogPlugin()
+    ]
+  },
   title: "苏木",
   lang: 'zh-CN',
   description: "The development documentation for sumu",
