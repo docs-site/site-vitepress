@@ -1,9 +1,9 @@
 <template>
   <div class="catalog-container">
-    <h3 class="catalog-title">目录</h3>
+    <h3 class="catalog-title">目录导航</h3>
     <ul class="catalog-list">
       <li v-for="item in catalogData" :key="item.path" class="catalog-item">
-        {{ item.title }}
+        <a :href="withBase(item.path)" class="catalog-link">{{ item.title }}</a>
       </li>
     </ul>
   </div>
@@ -11,7 +11,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { useData } from 'vitepress'
+import { useData, withBase } from 'vitepress'
 
 interface CatalogItem {
   path: string

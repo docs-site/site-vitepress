@@ -75,8 +75,8 @@ export function catalogPlugin(options: CatalogPluginOptions = {}): Plugin {
       // 直接使用文件名（去掉.md后缀）作为标题
       const title = file.replace('.md', '')
 
-      // 生成路径
-      const relativePath = path.join(dirPath, file).replace(/\\/g, '/')
+      // 生成路径，去掉.md后缀
+      const relativePath = path.join(dirPath, file).replace(/\\/g, '/').replace(/\.md$/, '')
 
       return {
         path: `/${relativePath}`,
