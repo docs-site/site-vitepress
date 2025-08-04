@@ -12,6 +12,7 @@ import MNavLinks from './components/MNavLinks.vue'
 import MouseClick from "./components/MouseClick.vue"
 import BreadCrumb from './components/BreadCrumb.vue' // 导入BreadCrumb组件
 import Catalog from './components/Catalog.vue' // 导入Catalog组件
+import DataLoader from './components/DataLoader.vue' // 导入DataLoader组件
 import MainLayout from './layout/MainLayout.vue' // 导入布局组件
 
 import codeblocksFold from './plugins/vitepress-code-folding/src/code-folding'; // 导入方法
@@ -51,6 +52,7 @@ export default {
     app.component('MouseClick' , MouseClick)
     app.component('BreadCrumb', BreadCrumb) // 注册BreadCrumb组件
     app.component('Catalog', Catalog) // 注册Catalog组件
+    app.component('DataLoader', DataLoader) // 注册DataLoader组件
   },
   setup() {
     const { frontmatter } = useData(); // 获取前言和路由

@@ -14,6 +14,9 @@ hero:
       text: site-vitepress
       link: https://github.com/docs-site/site-vitepress
     - theme: alt
+      text: examples
+      link: /examples/
+    - theme: alt
       text: 01-前端相关
       link: /sdoc/01-前端相关/
     - theme: alt
