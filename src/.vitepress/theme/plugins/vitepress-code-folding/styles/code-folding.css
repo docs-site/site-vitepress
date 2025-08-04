@@ -1,0 +1,134 @@
+/* 代码折叠容器样式 */
+.vp-doc div.fold[class*=language-] {
+  overflow: unset;                    /* 允许内容溢出显示 */
+  margin-bottom: var(--codeblocks-margin-bottom) /* 设置代码块底部外边距 */
+}
+
+/* 折叠代码块中的行号包装器 */
+.vp-doc div.fold[class*=language-]>.line-numbers-wrapper {
+  overflow: hidden                    /* 隐藏超出容器的内容 */
+}
+
+/* 折叠代码块的遮罩层 */
+.vp-doc div.fold[class*=language-]>.codeblocks-mask {
+  display: block;                     /* 显示遮罩层 */
+  position: absolute;                 /* 绝对定位 */
+  left: 0;                            /* 左侧对齐 */
+  bottom: 0;                          /* 底部对齐 */
+  height: 48px;                       /* 高度48px */
+  width: 100%;                        /* 宽度占满父容器 */
+  z-index: 9;                         /* 设置层级 */
+  pointer-events: none                /* 不响应鼠标事件 */
+}
+
+/* 折叠按钮样式 */
+.vp-doc div.fold[class*=language-]>.fold-btn {
+  display: flex;                      /* 使用弹性布局 */
+  position: absolute;                 /* 绝对定位 */
+  left: 0;                            /* 左侧对齐 */
+  bottom: -20px;                      /* 调整底部位置 */
+  height: 20px;                       /* 减小高度为20px */
+  width: 100%;                        /* 宽度占满父容器 */
+  z-index: 9;                         /* 设置层级 */
+  border-radius: 0 0 8px 8px;         /* 设置底部圆角 */
+  cursor: pointer;                    /* 鼠标悬停时显示手型光标 */
+  user-select: none;                  /* 禁止文本选择 */
+  justify-content: center;            /* 水平居中 */
+  align-items: center                 /* 垂直居中 */
+}
+
+/* 折叠按钮图标动画 */
+.vp-doc div.fold[class*=language-]>.fold-btn>svg.fold-btn-icon {
+  animation: float1 infinite .8s      /* 应用float1动画 */
+}
+
+/* 折叠按钮图标翻转动画 */
+.vp-doc div.fold[class*=language-]>.fold-btn>svg.fold-btn-icon.turn {
+  animation: float2 infinite .8s      /* 应用float2动画 */
+}
+
+/* 向上浮动动画 */
+@keyframes float1 {
+  0% {
+    transform: translateY(0px)        /* 初始位置 */
+  }
+
+  50% {
+    transform: translateY(-5px)       /* 向上移动5px */
+  }
+
+  100% {
+    transform: translateY(0px)        /* 回到初始位置 */
+  }
+}
+
+/* 向下浮动并旋转动画 */
+@keyframes float2 {
+  0% {
+    transform: translateY(0px) rotate(180deg) /* 初始位置并旋转180度 */
+  }
+
+  50% {
+    transform: translateY(-5px) rotate(180deg) /* 向上移动5px并保持旋转 */
+  }
+
+  100% {
+    transform: translateY(0px) rotate(180deg)  /* 回到初始位置并保持旋转 */
+  }
+}
+
+/* 代码块滚动条样式 */
+.vp-doc pre.shiki {
+  scrollbar-width: auto !important;   /* 滚动条宽度 */
+  scrollbar-color: rgba(0, 0, 0, 0) rgba(0, 0, 0, 0) !important /* 滚动条颜色 */
+}
+
+/* Webkit内核浏览器滚动条宽度 */
+.vp-doc pre.shiki::-webkit-scrollbar {
+  width: 4px !important;              /* 垂直滚动条宽度 */
+  height: 4px !important;             /* 水平滚动条高度 */
+  background-color: rgba(0, 0, 0, 0)  /* 滚动条背景色 */
+}
+
+/* Webkit内核浏览器滚动条滑块 */
+.vp-doc pre.shiki::-webkit-scrollbar-thumb {
+  height: 10px !important;            /* 滑块高度 */
+  outline-offset: 0 !important;       /* 轮廓偏移 */
+  outline: unset !important;          /* 取消轮廓 */
+  border-radius: 2px !important;      /* 圆角 */
+  border: 1px rgba(0, 0, 0, 0) solid !important; /* 边框 */
+  background-color: rgba(0, 0, 0, 0) !important  /* 滑块背景色 */
+}
+
+/* Webkit内核浏览器滚动条滑块悬停状态 */
+.vp-doc pre.shiki::-webkit-scrollbar-thumb:hover {
+  height: 10px !important;            /* 滑块高度 */
+  border-radius: 2px !important;      /* 圆角 */
+  background-color: rgba(0, 0, 0, 0) !important  /* 滑块背景色 */
+}
+
+/* Webkit内核浏览器滚动条轨道片段 */
+.vp-doc pre.shiki::-webkit-scrollbar-track-piece {
+  -webkit-border-radius: 0 !important; /* Webkit圆角 */
+  background-color: rgba(0, 0, 0, 0) !important   /* 轨道背景色 */
+}
+
+/* Webkit内核浏览器滚动条轨道 */
+.vp-doc pre.shiki::-webkit-scrollbar-track {
+  right: 0 !important;                /* 右侧对齐 */
+  background-color: rgba(0, 0, 0, 0) !important   /* 轨道背景色 */
+}
+
+/* Webkit内核浏览器滚动条按钮 */
+.vp-doc pre.shiki::-webkit-scrollbar-button {
+  height: 4px !important;             /* 按钮高度 */
+  width: 4px !important;              /* 按钮宽度 */
+  background-color: rgba(0, 0, 0, 0) !important   /* 按钮背景色 */
+}
+
+/* Webkit内核浏览器滚动条角落 */
+.vp-doc pre.shiki::-webkit-scrollbar-corner {
+  background-color: rgba(0, 0, 0, 0) !important   /* 角落背景色 */
+}
+
+/*# sourceMappingURL=index.css.map */

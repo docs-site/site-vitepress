@@ -3,7 +3,7 @@ import { h } from 'vue'
 import type { Theme } from 'vitepress'
 import DefaultTheme from 'vitepress/theme'
 
-import { useData } from 'vitepress'
+import { useData, useRoute } from 'vitepress'
 
 import Linkcard from "./components/Linkcard.vue"
 import HomeUnderline from "./components/HomeUnderline.vue"
@@ -13,6 +13,8 @@ import MouseClick from "./components/MouseClick.vue"
 import BreadCrumb from './components/BreadCrumb.vue' // 导入BreadCrumb组件
 import Catalog from './components/Catalog.vue' // 导入Catalog组件
 import MainLayout from './layout/MainLayout.vue' // 导入布局组件
+
+import codeblocksFold from './plugins/vitepress-code-folding/src/code-folding'; // 导入方法
 
 import './style.css'
 
@@ -49,5 +51,14 @@ export default {
     app.component('MouseClick' , MouseClick)
     app.component('BreadCrumb', BreadCrumb) // 注册BreadCrumb组件
     app.component('Catalog', Catalog) // 注册Catalog组件
+  },
+  setup() {
+    // 获取前言和路由
+    const { frontmatter } = useData();
+    const route = useRoute();
+    // 基础使用
+    codeblocksFold({ route, frontmatter });
+    // 可配置参数
+    // codeblocksFold({ route, frontmatter }, true, 400);
   }
 } satisfies Theme

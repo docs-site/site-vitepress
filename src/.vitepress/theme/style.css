@@ -46,7 +46,8 @@
 @import './tags/css/folding.css';          /* Folding styles */
 @import './tags/css/inline-labels.css';    /* inline-labels styles */
 @import './tags/css/tabs.css';             /* tabs styles */
-@import './styles/vp-code.css';             /* vp-ode styles */
+@import './styles/vp-code.css';            /* vp-ode styles */
+@import './plugins/vitepress-code-folding/styles/code-folding.css'; /* code-folding styles */
 
 :root {
   --vp-c-gray-1: #dddde3;
