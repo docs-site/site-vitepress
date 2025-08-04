@@ -9,6 +9,7 @@ import Linkcard from "./components/Linkcard.vue"
 import HomeUnderline from "./components/HomeUnderline.vue"
 import ArticleMetadata from "./components/ArticleMetadata.vue"
 import MNavLinks from './components/MNavLinks.vue'
+import MouseClick from "./components/MouseClick.vue"
 import MainLayout from './layout/MainLayout.vue' // 导入布局组件
 
 import './style.css'
@@ -43,6 +44,6 @@ export default {
     app.component('HomeUnderline' , HomeUnderline)
     app.component('ArticleMetadata' , ArticleMetadata)
     app.component('MNavLinks' , MNavLinks)
-    
+    app.component('MouseClick' , MouseClick)
   }
 } satisfies Theme

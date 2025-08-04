@@ -7,8 +7,12 @@ import backtotop from "../components/BackTop.vue";
 
 <template>
   <DefaultTheme.Layout v-bind="$attrs">
+    <!-- layout-top插槽 -->
+    <template #layout-top>
+      <MouseClick />
+    </template>
 
-		<!-- doc-before插槽 -->
+    <!-- doc-before插槽 -->
     <template #doc-before>
       <ArticleMetadata />
     </template>
@@ -21,5 +25,4 @@ import backtotop from "../components/BackTop.vue";
   </DefaultTheme.Layout>
 </template>
 
-<style scoped>
-</style>
+<style scoped></style>
