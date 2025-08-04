@@ -53,12 +53,9 @@ export default {
     app.component('Catalog', Catalog) // 注册Catalog组件
   },
   setup() {
-    // 获取前言和路由
-    const { frontmatter } = useData();
+    const { frontmatter } = useData(); // 获取前言和路由
     const route = useRoute();
-    // 基础使用
-    codeblocksFold({ route, frontmatter });
-    // 可配置参数
-    // codeblocksFold({ route, frontmatter }, true, 400);
+    codeblocksFold({ route, frontmatter }); // 基础使用
+    // codeblocksFold({ route, frontmatter }, true, 400); // 可配置参数
   }
 } satisfies Theme

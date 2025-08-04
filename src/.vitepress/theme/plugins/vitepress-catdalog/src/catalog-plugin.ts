@@ -1,4 +1,37 @@
 /**
+ * VitePress Catalog Plugin
+ * 
+ * 这是一个 Vite 构建时插件，用于生成虚拟模块 '@site/catalog'。
+ * 
+ * 插件类型：Vite 构建时插件
+ * 运行环境：Node.js
+ * 工作时机：项目构建阶段
+ * 
+ * 插件功能：
+ * - 在开发环境中通过中间件动态提供目录数据
+ * - 在生产环境中生成静态数据并打包到虚拟模块中
+ * - 支持按需加载，只在需要时生成和加载模块内容
+ * 
+ * 工作原理：
+ * 1. 开发环境：通过 Vite 中间件动态扫描文件系统并返回 JSON 数据
+ * 2. 生产环境：在构建时预扫描所有页面并生成静态数据
+ * 
+ * 使用方式：
+ * 在 VitePress 配置文件中注册此插件：
+ * ```ts
+ * import { catalogPlugin } from './plugins/vitepress-catdalog/src/catalog-plugin'
+ * 
+ * export default defineConfig({
+ *   vite: {
+ *     plugins: [
+ *       catalogPlugin({ srcDir: 'src' })
+ *     ]
+ *   }
+ * })
+ * ```
+ */
+
+/**
  * 虚拟模块说明：
  * 
  * 什么是虚拟模块？
@@ -27,28 +60,48 @@
  * 这种设计确保了开发环境的灵活性和生产环境的高性能。
  */
 
-import { type Plugin } from 'vite'
-import * as fs from 'fs'
-import * as path from 'path'
+import { type Plugin } from 'vite'  // Vite插件类型定义
+import * as fs from 'fs'             // Node.js文件系统模块
+import * as path from 'path'         // Node.js路径处理模块
 
+// 目录项接口定义，描述单个目录条目的结构
 interface CatalogItem {
-  path: string
-  title: string
+  path: string   // 条目对应的页面路径
+  title: string  // 条目显示的标题
 }
 
+// 目录数据接口定义，以页面路径为键，目录项数组为值的对象
 interface CatalogData {
-  [key: string]: CatalogItem[]
+  [key: string]: CatalogItem[]  // 键值对映射：页面路径 -> 目录项列表
 }
 
+// 插件选项接口定义，用于配置插件行为
 interface CatalogPluginOptions {
-  srcDir?: string
+  srcDir?: string  // 源代码目录路径，默认为 'src'
 }
 
+/**
+ * @brief 创建目录插件实例
+ * @param options 插件配置选项
+ * @returns Vite插件对象
+ * 
+ * 此函数创建并返回一个Vite插件，用于生成和管理页面目录数据。
+ * 插件支持开发环境的动态数据获取和生产环境的静态数据打包。
+ */
 export function catalogPlugin(options: CatalogPluginOptions = {}): Plugin {
-  const srcDir = options.srcDir || 'src'
-  let siteConfig: any = null
-  let catalogData: CatalogData = {}
+  const srcDir = options.srcDir || 'src'  // 源代码目录路径
+  let siteConfig: any = null              // 站点配置对象
+  let catalogData: CatalogData = {}       // 存储预扫描的目录数据
 
+  /**
+   * @brief 获取指定页面的目录数据
+   * @param pagePath 页面路径
+   * @param siteConfig 站点配置对象
+   * @returns 目录项数组
+   * 
+   * 根据给定的页面路径，查找同一目录下的所有markdown文件，
+   * 并生成对应的目录项数据。
+   */
   function getCatalogForPage(pagePath: string, siteConfig: any): CatalogItem[] {
     // 移除开头的斜杠和.html后缀
     const normalizedPath = pagePath.replace(/^\//, '').replace(/\.html$/, '').replace(/\/$/, '')
@@ -61,14 +114,14 @@ export function catalogPlugin(options: CatalogPluginOptions = {}): Plugin {
     const fullPath = path.join(rootPath, srcDir, dirPath)
 
     if (!fs.existsSync(fullPath)) {
-      return []
+      return []  // 如果目录不存在，返回空数组
     }
 
     const files = fs.readdirSync(fullPath)
     const mdFiles = files.filter(file =>
-      file.endsWith('.md') &&
-      file !== 'index.md' &&
-      file !== 'README.md'
+      file.endsWith('.md') &&           // 只选择markdown文件
+      file !== 'index.md' &&            // 排除index.md文件
+      file !== 'README.md'              // 排除README.md文件
     )
 
     return mdFiles.map(file => {
@@ -79,12 +132,20 @@ export function catalogPlugin(options: CatalogPluginOptions = {}): Plugin {
       const relativePath = path.join(dirPath, file).replace(/\\/g, '/').replace(/\.md$/, '')
 
       return {
-        path: `/${relativePath}`,
-        title
+        path: `/${relativePath}`,  // 生成完整路径
+        title                     // 使用文件名作为标题
       }
     })
   }
 
+  /**
+   * @brief 扫描所有页面并生成目录数据
+   * @param siteConfig 站点配置对象
+   * @returns 完整的目录数据映射
+   * 
+   * 递归扫描源代码目录中的所有页面，并为每个包含index.md的目录
+   * 生成相应的目录数据。
+   */
   function scanAllPages(siteConfig: any): CatalogData {
     const rootPath = siteConfig.root || process.cwd()
     const srcPath = path.join(rootPath, srcDir)
@@ -93,9 +154,16 @@ export function catalogPlugin(options: CatalogPluginOptions = {}): Plugin {
     // 定义需要排除的目录
     const excludedDirs = ['.vitepress', 'public', 'test']
 
+    /**
+     * @brief 递归扫描目录
+     * @param dirPath 当前扫描的目录路径
+     * 
+     * 递归遍历目录结构，为包含index.md的目录生成目录数据，
+     * 并跳过指定的排除目录。
+     */
     function scanDirectory(dirPath: string) {
       if (!fs.existsSync(dirPath)) {
-        return
+        return  // 如果目录不存在则直接返回
       }
 
       const files = fs.readdirSync(dirPath)
@@ -120,7 +188,7 @@ export function catalogPlugin(options: CatalogPluginOptions = {}): Plugin {
         const stat = fs.statSync(fullPath)
 
         if (stat.isDirectory()) {
-          scanDirectory(fullPath)
+          scanDirectory(fullPath)  // 递归扫描子目录
         }
       }
     }
@@ -129,8 +197,9 @@ export function catalogPlugin(options: CatalogPluginOptions = {}): Plugin {
     return catalogData
   }
 
+  // 返回Vite插件对象
   return {
-    name: 'vitepress-catalog-plugin',
+    name: 'vitepress-catalog-plugin',  // 插件名称
 
     /**
      * 配置解析阶段

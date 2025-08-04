@@ -1,3 +1,37 @@
+/**
+ * VitePress Code Folding Plugin
+ * 
+ * 这是一个 Vue 客户端插件，用于实现代码块的折叠功能。
+ * 
+ * 插件类型：Vue 客户端插件
+ * 运行环境：浏览器
+ * 工作时机：页面运行时
+ * 
+ * 插件功能：
+ * - 为页面中的代码块添加折叠/展开功能
+ * - 支持自定义折叠高度
+ * - 支持默认折叠状态配置
+ * - 兼容代码块组和主题切换
+ * 
+ * 工作原理：
+ * 1. 在页面加载时扫描所有代码块
+ * 2. 为超过指定高度的代码块添加折叠按钮
+ * 3. 通过 DOM 操作实现折叠/展开动画
+ * 
+ * 使用方式：
+ * 在主题的 setup() 钩子中调用：
+ * ```ts
+ * import codeblocksFold from './plugins/vitepress-code-folding/src/code-folding';
+ * 
+ * export default {
+ *   setup() {
+ *     const { frontmatter, route } = useData();
+ *     codeblocksFold({ route, frontmatter });
+ *   }
+ * }
+ * ```
+ */
+
 import { nextTick, onMounted, Ref, watch } from 'vue';
 import { PageData, Route } from 'vitepress';
 
