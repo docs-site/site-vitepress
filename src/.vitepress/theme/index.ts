@@ -10,6 +10,7 @@ import HomeUnderline from "./components/HomeUnderline.vue"
 import ArticleMetadata from "./components/ArticleMetadata.vue"
 import MNavLinks from './components/MNavLinks.vue'
 import MouseClick from "./components/MouseClick.vue"
+import BreadCrumb from './components/BreadCrumb.vue' // 导入BreadCrumb组件
 import MainLayout from './layout/MainLayout.vue' // 导入布局组件
 
 import './style.css'
@@ -45,5 +46,6 @@ export default {
     app.component('ArticleMetadata' , ArticleMetadata)
     app.component('MNavLinks' , MNavLinks)
     app.component('MouseClick' , MouseClick)
+    app.component('BreadCrumb', BreadCrumb) // 注册BreadCrumb组件
   }
 } satisfies Theme

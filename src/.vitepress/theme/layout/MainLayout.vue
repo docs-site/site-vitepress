@@ -14,6 +14,7 @@ import backtotop from "../components/BackTop.vue";
 
     <!-- doc-before插槽 -->
     <template #doc-before>
+      <BreadCrumb />
       <ArticleMetadata />
     </template>
 
