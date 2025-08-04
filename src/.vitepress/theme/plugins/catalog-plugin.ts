@@ -40,9 +40,94 @@ interface CatalogData {
   [key: string]: CatalogItem[]
 }
 
-export function catalogPlugin(): Plugin {
+interface CatalogPluginOptions {
+  srcDir?: string
+}
+
+export function catalogPlugin(options: CatalogPluginOptions = {}): Plugin {
+  const srcDir = options.srcDir || 'src'
   let siteConfig: any = null
   let catalogData: CatalogData = {}
+
+  function getCatalogForPage(pagePath: string, siteConfig: any): CatalogItem[] {
+    // 移除开头的斜杠和.html后缀
+    const normalizedPath = pagePath.replace(/^\//, '').replace(/\.html$/, '').replace(/\/$/, '')
+
+    // 获取当前页面的目录路径
+    const dirPath = path.dirname(normalizedPath === 'index' ? '' : normalizedPath)
+
+    // 查找该目录下的所有md文件
+    const rootPath = siteConfig.root || process.cwd()
+    const fullPath = path.join(rootPath, srcDir, dirPath)
+
+    if (!fs.existsSync(fullPath)) {
+      return []
+    }
+
+    const files = fs.readdirSync(fullPath)
+    const mdFiles = files.filter(file =>
+      file.endsWith('.md') &&
+      file !== 'index.md' &&
+      file !== 'README.md'
+    )
+
+    return mdFiles.map(file => {
+      // 直接使用文件名（去掉.md后缀）作为标题
+      const title = file.replace('.md', '')
+
+      // 生成路径
+      const relativePath = path.join(dirPath, file).replace(/\\/g, '/')
+
+      return {
+        path: `/${relativePath}`,
+        title
+      }
+    })
+  }
+
+  function scanAllPages(siteConfig: any): CatalogData {
+    const rootPath = siteConfig.root || process.cwd()
+    const srcPath = path.join(rootPath, srcDir)
+    const catalogData: CatalogData = {}
+
+    // 定义需要排除的目录
+    const excludedDirs = ['.vitepress', 'public', 'test']
+
+    function scanDirectory(dirPath: string) {
+      if (!fs.existsSync(dirPath)) {
+        return
+      }
+
+      const files = fs.readdirSync(dirPath)
+
+      // 检查当前目录是否有index.md文件
+      if (files.includes('index.md')) {
+        // 为每个index.md生成目录数据
+        const relativePath = path.relative(srcPath, dirPath).replace(/\\/g, '/')
+        const pagePath = relativePath === '' ? 'index' : `${relativePath}/index`
+
+        catalogData[pagePath] = getCatalogForPage(pagePath, siteConfig)
+      }
+
+      // 递归扫描子目录
+      for (const file of files) {
+        // 跳过排除的目录
+        if (excludedDirs.includes(file)) {
+          continue
+        }
+
+        const fullPath = path.join(dirPath, file)
+        const stat = fs.statSync(fullPath)
+
+        if (stat.isDirectory()) {
+          scanDirectory(fullPath)
+        }
+      }
+    }
+
+    scanDirectory(srcPath)
+    return catalogData
+  }
 
   return {
     name: 'vitepress-catalog-plugin',
@@ -157,84 +242,4 @@ export function catalogPlugin(): Plugin {
       })
     }
   }
-}
-
-function getCatalogForPage(pagePath: string, siteConfig: any): CatalogItem[] {
-  // 移除开头的斜杠和.html后缀
-  const normalizedPath = pagePath.replace(/^\//, '').replace(/\.html$/, '').replace(/\/$/, '')
-
-  // 获取当前页面的目录路径
-  const dirPath = path.dirname(normalizedPath === 'index' ? '' : normalizedPath)
-
-  // 查找该目录下的所有md文件
-  const rootPath = siteConfig.root || process.cwd()
-  const fullPath = path.join(rootPath, 'src', dirPath)
-
-  if (!fs.existsSync(fullPath)) {
-    return []
-  }
-
-  const files = fs.readdirSync(fullPath)
-  const mdFiles = files.filter(file =>
-    file.endsWith('.md') &&
-    file !== 'index.md' &&
-    file !== 'README.md'
-  )
-
-  return mdFiles.map(file => {
-    // 直接使用文件名（去掉.md后缀）作为标题
-    const title = file.replace('.md', '')
-
-    // 生成路径
-    const relativePath = path.join(dirPath, file).replace(/\\/g, '/')
-
-    return {
-      path: `/${relativePath}`,
-      title
-    }
-  })
-}
-
-function scanAllPages(siteConfig: any): CatalogData {
-  const rootPath = siteConfig.root || process.cwd()
-  const srcPath = path.join(rootPath, 'src')
-  const catalogData: CatalogData = {}
-
-  // 定义需要排除的目录
-  const excludedDirs = ['.vitepress', 'public', 'test']
-
-  function scanDirectory(dirPath: string) {
-    if (!fs.existsSync(dirPath)) {
-      return
-    }
-
-    const files = fs.readdirSync(dirPath)
-
-    // 检查当前目录是否有index.md文件
-    if (files.includes('index.md')) {
-      // 为每个index.md生成目录数据
-      const relativePath = path.relative(srcPath, dirPath).replace(/\\/g, '/')
-      const pagePath = relativePath === '' ? 'index' : `${relativePath}/index`
-
-      catalogData[pagePath] = getCatalogForPage(pagePath, siteConfig)
-    }
-
-    // 递归扫描子目录
-    for (const file of files) {
-      // 跳过排除的目录
-      if (excludedDirs.includes(file)) {
-        continue
-      }
-
-      const fullPath = path.join(dirPath, file)
-      const stat = fs.statSync(fullPath)
-
-      if (stat.isDirectory()) {
-        scanDirectory(fullPath)
-      }
-    }
-  }
-
-  scanDirectory(srcPath)
-  return catalogData
 }

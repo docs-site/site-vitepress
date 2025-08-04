@@ -8,7 +8,7 @@ import { catalogPlugin } from './theme/plugins/catalog-plugin'
 export default defineConfig({
   vite: {
     plugins: [
-      catalogPlugin()
+      catalogPlugin({ srcDir: 'src' })
     ]
   },
   title: "苏木",
