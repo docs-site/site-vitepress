@@ -53,8 +53,8 @@ function createTextParticle(x, y) {
     fontSize: textConfig.fontSize,
     alpha: 1, // For fading out
     speedY: -0.8,           // 向上移动速度 (更慢)
-    fadeStartDistance: 100, // 开始淡出前移动距离
-    fadeDuration: 80,       // 淡出持续时间(帧数)
+    fadeStartDistance: 25, // 开始淡出前移动距离
+    fadeDuration: 50,       // 淡出持续时间(帧数)
     draw(ctx) {
       ctx.save();
       ctx.globalAlpha = this.alpha;
