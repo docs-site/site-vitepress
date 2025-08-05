@@ -92,6 +92,7 @@ export function catalogPlugin(options: CatalogPluginOptions = {}): Plugin {
   const srcDir = options.srcDir || 'src'  // 源代码目录路径
   let siteConfig: any = null              // 站点配置对象
   let catalogData: CatalogData = {}       // 存储预扫描的目录数据
+  let isProduction = false                // 是否为生产环境
 
   /**
    * @brief 获取指定页面的目录数据
@@ -202,6 +203,14 @@ export function catalogPlugin(options: CatalogPluginOptions = {}): Plugin {
     name: 'vitepress-catalog-plugin',  // 插件名称
 
     /**
+     * 配置阶段
+     * 设置是否为生产环境
+     */
+    config(config, { command }) {
+      isProduction = command === 'build'
+    },
+
+    /**
      * 配置解析阶段
      * 获取VitePress的站点配置，设置虚拟模块别名
      */
@@ -227,30 +236,6 @@ export function catalogPlugin(options: CatalogPluginOptions = {}): Plugin {
         return '@site/catalog' // 返回虚拟模块的ID
       }
       return null // 不是我们要处理的模块，让其他插件处理
-    },
-
-    /**
-     * 模块加载钩子
-     * 为虚拟模块提供源代码（开发环境）
-     */
-    load(id) {
-      if (id === '@site/catalog') {
-        // 开发环境下的动态处理
-        // 返回一个函数，该函数通过fetch从服务器获取数据
-        return `
-          export default function(pagePath) {
-            // 开发环境下,通过fetch获取实时数据
-            // 这样每次访问都能获取最新的文件系统状态
-            return new Promise((resolve) => {
-              fetch('/@site/catalog?page=' + encodeURIComponent(pagePath))
-                .then(response => response.json())
-                .then(data => resolve(data))
-                .catch(() => resolve([]));
-            });
-          }
-        `
-      }
-      return null
     },
 
     /**
@@ -289,26 +274,45 @@ export function catalogPlugin(options: CatalogPluginOptions = {}): Plugin {
     },
 
     /**
-     * 生成打包文件
-     * 为生产环境创建包含静态数据的虚拟模块
+     * 模块加载钩子（生产环境）
+     * 为虚拟模块提供源代码（生产环境）
      */
-    generateBundle() {
-      // 生成虚拟模块，包含预扫描的静态数据
-      this.emitFile({
-        type: 'asset',
-        fileName: '@site/catalog.js',
-        source: `
+    load(id) {
+      if (id === '@site/catalog') {
+        // 根据环境提供不同的实现
+        if (isProduction) {
           // 生产环境：使用预生成的静态数据
-          export function getCatalog(pagePath) {
+          return `
+            // 生产环境：使用预生成的静态数据
             const catalogData = ${JSON.stringify(catalogData, null, 2)};
-            return catalogData[pagePath] || [];
-          }
-          
-          export default function(pagePath) {
-            return getCatalog(pagePath);
-          }
-        `
-      })
-    }
+            
+            export function getCatalog(pagePath) {
+              return catalogData[pagePath] || [];
+            }
+            
+            export default function(pagePath) {
+              return getCatalog(pagePath);
+            }
+          `
+        } else {
+          // 开发环境下的动态处理
+          // 返回一个函数，该函数通过fetch从服务器获取数据
+          return `
+            export default function(pagePath) {
+              // 开发环境下,通过fetch获取实时数据
+              // 这样每次访问都能获取最新的文件系统状态
+              return new Promise((resolve) => {
+                fetch('/@site/catalog?page=' + encodeURIComponent(pagePath))
+                  .then(response => response.json())
+                  .then(data => resolve(data))
+                  .catch(() => resolve([]));
+              });
+            }
+          `
+        }
+      }
+      return null
+    },
   }
 }
+
