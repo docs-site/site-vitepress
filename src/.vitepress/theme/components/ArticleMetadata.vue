@@ -1,9 +1,9 @@
 <script lang="ts" setup>
 import { useData } from 'vitepress'
 import { computed, ref, onMounted } from 'vue'
-import { countWord } from '../helpers/count-word'
 
 const { page } = useData()
+
 /**
  * @brief 获取并处理页面最后更新时间
  * @details 
@@ -14,13 +14,32 @@ const date = computed(
   () => new Date(page.value.lastUpdated!)
 )
 
+/** 
+ * @brief 页面字数统计
+ * @details 用于存储当前页面的字数统计结果
+ */
 const wordCount = ref(0)
+
+/** 
+ * @brief 页面图片数量统计
+ * @details 用于存储当前页面的图片数量统计结果
+ */
 const imageCount = ref(0)
 
+/**
+ * @brief 计算文字阅读时间
+ * @details 根据字数计算阅读时间，假设每分钟阅读275个字
+ * @return {number} 阅读时间（秒）
+ */
 const wordTime = computed(() => {
   return ((wordCount.value / 275) * 60)
 })
 
+/**
+ * @brief 计算图片浏览时间
+ * @details 根据图片数量计算浏览时间，前10张图片按等差数列计算，超过10张后按固定时间计算
+ * @return {number} 图片浏览时间（秒）
+ */
 const imageTime = computed(() => {
     const n = imageCount.value
     if (imageCount.value <= 10) {
@@ -30,12 +49,47 @@ const imageTime = computed(() => {
     return 175 + (n - 10) * 3
 })
 
-// 阅读时间
+/**
+ * @brief 计算总阅读时间
+ * @details 将文字阅读时间和图片浏览时间相加，转换为分钟并向上取整
+ * @return {number} 总阅读时间（分钟）
+ */
 const readTime = computed(() => {
     return Math.ceil((wordTime.value + imageTime.value) / 60)
 })
 
+/**
+ * @brief 匹配中英文字符和数字的正则表达式
+ * @details 用于字数统计时识别有效的字符
+ */
+const pattern = /[a-zA-Z0-9_\u0392-\u03C9\u00C0-\u00FF\u0600-\u06FF\u0400-\u04FF]+|[\u4E00-\u9FFF\u3400-\u4DBF\uF900-\uFAFF\u3040-\u309F\uAC00-\uD7AF]+/g
 
+/**
+ * @brief 统计文本中的字数
+ * @param {string} data - 需要统计字数的文本
+ * @return {number} 字数统计结果
+ */
+function countWord(data: string) {
+    const m = data.match(pattern)
+    let count = 0
+    if (!m) {
+        return 0
+    }
+    for (let i = 0; i < m.length; i += 1) {
+        if (m[i].charCodeAt(0) >= 0x4E00) {
+            count += m[i].length
+        }
+        else {
+            count += 1
+        }
+    }
+    return count
+}
+
+/**
+ * @brief 分析页面内容并统计字数和图片数量
+ * @details 查询页面中的文字内容和图片元素，分别进行统计
+ */
 function analyze() {
     document.querySelectorAll('.meta-des').forEach(v => v.remove())
     const docDomContainer = window.document.querySelector('#VPContent')
@@ -47,6 +101,10 @@ function analyze() {
     wordCount.value = countWord(words)
 }
 
+/**
+ * @brief 组件挂载时执行分析函数
+ * @details 在Vue组件挂载完成后，调用analyze函数进行初始数据分析
+ */
 onMounted(() => {
     // 初始化时执行一次
     analyze()
@@ -78,3 +136,4 @@ onMounted(() => {
     transform: translate(0px , 2px);
 }
 </style>
+
