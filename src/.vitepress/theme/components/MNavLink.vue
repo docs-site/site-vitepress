@@ -3,7 +3,27 @@ import { computed } from 'vue'
 import { withBase } from 'vitepress'
 import { slugify } from '@mdit-vue/shared'
 
-import { NavLink } from '../helpers/types'
+interface NavLink {
+  /** 站点图标 */
+  icon?: string | { svg: string }
+  badge?:
+    | string
+    | {
+        text?: string
+        type?: 'info' | 'tip' | 'warning' | 'danger'
+      }
+  /** 站点名称 */
+  title: string
+  /** 站点名称 */
+  desc?: string
+  /** 站点链接 */
+  link: string
+}
+
+interface NavData {
+  title: string
+  items: NavLink[]
+}
 
 const props = defineProps<{
   noIcon?: boolean
