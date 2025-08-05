@@ -6,7 +6,11 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from "vue";
+import { ref, onMounted, onUnmounted, computed } from "vue";
+import { useWindowSize } from '@vueuse/core'
+
+const { width } = useWindowSize()
+const isMobile = computed(() => width.value < 768)
 
 const canvas = ref(null);
 let animationFrameId = null;
@@ -119,6 +123,8 @@ function getRandomColor() {
 }
 
 onMounted(() => {
+  if (isMobile.value) return;
+  
   setCanvasSize();
   const tapEvent = "ontouchstart" in window ? "touchstart" : "mousedown";
   window.addEventListener(tapEvent, handleClick);
@@ -127,6 +133,8 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
+  if (isMobile.value) return;
+  
   const tapEvent = "ontouchstart" in window ? "touchstart" : "mousedown";
   window.removeEventListener(tapEvent, handleClick);
   window.removeEventListener("resize", setCanvasSize);
