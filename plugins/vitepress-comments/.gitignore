@@ -1,0 +1,7 @@
+# 忽略的文件夹
+.idea
+node_modules
+dist
+tsconfig.tsbuildinfo*
+package-lock.json
+**/cache

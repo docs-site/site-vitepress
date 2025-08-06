@@ -1,0 +1,17 @@
+{
+  "name": "@docs-site/vitepress-comments",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "./lib/giscus.ts",
+  "types": "./lib/giscus.d.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@giscus/vue": "^3.1.1"
+  }
+}
