@@ -5,6 +5,7 @@ sidebar: false
 prev: false
 next: false
 outline: [2, 3, 4]
+comments: false
 navData:
   - title: "常用工具"
     items:
@@ -94,6 +95,24 @@ navData:
         title: "Kele-Bingtang/vitepress-theme-teek"
         desc: "一个轻量、简洁高效、灵活配置、易于扩展的 VitePress 主题"
         link: "https://vp.teek.top/"
+  - title: "前端基础"
+    items:
+      - icon: "/icons/javascript.svg"
+        title: "JavaScript"
+        desc: "现代 JavaScript 教程"
+        link: "https://zh.javascript.info/"
+      - icon: "/icons/typescript.svg"
+        title: "Typescript"
+        desc: "具有类型语法的 JavaScript"
+        link: "https://ts.nodejs.cn/docs/"
+      - icon: "/icons/typescript.svg"
+        title: "Typescript"
+        desc: "TypeScript 入门教程"
+        link: "https://ts.xcatliu.com/"
+      - icon: "/icons/typescript.svg"
+        title: "Typescript"
+        desc: "深入理解 TypeScript"
+        link: "https://jkchao.github.io/typescript-book-chinese/"
   - title: "React 生态"
     items:
       - icon: "https://zh-hans.reactjs.org/favicon.ico"
@@ -278,6 +297,10 @@ navData:
         title: "SWC"
         desc: "Rust-based platform for the Web"
         link: "https://swc.rs"
+      - icon: "/icons/unbuild.svg"
+        title: "unbuild"
+        desc: "📦 A unified JavaScript build system"
+        link: "https://github.com/unjs/unbuild"
   - title: "站点生成器"
     items:
       - icon: "https://astro.build/favicon.svg"
