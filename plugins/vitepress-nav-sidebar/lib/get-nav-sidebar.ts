@@ -1,10 +1,5 @@
-import { resolve, join, sep, dirname } from 'path'
+import { resolve, join, sep } from 'path'
 import { readdirSync, statSync } from 'fs'
-import { fileURLToPath } from 'url'
-
-// ES module equivalent of __dirname
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = dirname(__filename)
 import { DefaultTheme } from 'vitepress'
 
 // 控制台颜色常量
@@ -69,6 +64,11 @@ export interface SidebarGenerateConfig {
    * @default false
    */
   debugPrint?: boolean
+  /**
+   * 根目录路径，相对于项目根目录
+   * @default 'src'
+   */
+  rootDir?: string
 }
 
 /**
@@ -116,6 +116,11 @@ export interface NavGenerateConfig {
    * @default false
    */
   debugPrint?: boolean
+  /**
+   * 根目录路径，相对于项目根目录
+   * @default 'src'
+   */
+  rootDir?: string
 }
 
 /**
@@ -129,7 +134,7 @@ function isMarkdownFile(fileName: string) {
 }
 
 // 获取docs目录的完整路径(从根目录一直到docs目录)
-const docsDirFullPath = join(__dirname, '../')
+const docsDirFullPath = join(process.cwd(), 'src')
 // 获取docs目录的完整路径长度
 const docsDirFullPathLen = docsDirFullPath.length
 
@@ -144,7 +149,12 @@ const docsDirFullPathLen = docsDirFullPath.length
  */
 function getDocsDirNameAfterStr(dirOrFileFullName: string) {
   // 使用字符串截取方式避免多层目录都叫docs的问题
-  return `${sep}${dirOrFileFullName.substring(docsDirFullPathLen)}`
+  let result = dirOrFileFullName.substring(docsDirFullPathLen)
+  // 确保路径以斜杠开头，但不重复添加
+  if (!result.startsWith(sep)) {
+    result = sep + result
+  }
+  return result
 }
 
 /**
@@ -160,7 +170,8 @@ export function getSidebarData(sidebarGenerateConfig: SidebarGenerateConfig = {}
     ignoreFileNames = [...DEFAULT_IGNORE_FILES, ...(sidebarGenerateConfig.ignoreFileNames || [])],
     ignoreDirNames = [...DEFAULT_IGNORE_DIRS, ...(sidebarGenerateConfig.ignoreDirNames || [])],
     maxLevel = sidebarGenerateConfig.maxLevel || CONFIG.SIDEBAR.DEFAULT_LEVEL,
-    debugPrint = false
+    debugPrint = false,
+    rootDir = sidebarGenerateConfig.rootDir || 'src'
   } = sidebarGenerateConfig
 
   // 验证侧边栏层级
@@ -172,7 +183,7 @@ export function getSidebarData(sidebarGenerateConfig: SidebarGenerateConfig = {}
   }
 
   // 获取目录的绝对路径
-  const dirFullPath = resolve(__dirname, `../${dirName}`)
+  const dirFullPath = resolve(process.cwd(), `${rootDir}/${dirName}`)
   let allDirAndFileNameArr: string[] = []
   try {
     // 读取目录下所有文件和子目录
@@ -207,6 +218,8 @@ export function getSidebarData(sidebarGenerateConfig: SidebarGenerateConfig = {}
   })
 
   if (debugPrint) {
+    console.log("process.cwd()=", process.cwd())
+    console.log("getNavData dirFullPath: ", dirFullPath)
     console.log('Generated Sidebar Data:', JSON.stringify(obj, (key, value) => {
       if (key === 'link') {
         return value || 'undefined'
@@ -347,7 +360,8 @@ export function getNavData(navGenerateConfig: NavGenerateConfig = {}) {
     ignoreDirNames = [...DEFAULT_IGNORE_DIRS, ...(navGenerateConfig.ignoreDirNames || [])],
     // 新增：忽略文件配置 [重要修改]
     ignoreFileNames = [...DEFAULT_IGNORE_FILES, ...(navGenerateConfig.ignoreFileNames || [])],
-    debugPrint = false
+    debugPrint = false,
+    rootDir = navGenerateConfig.rootDir || 'src'
   } = navGenerateConfig
 
   // 验证导航栏层级
@@ -357,8 +371,8 @@ export function getNavData(navGenerateConfig: NavGenerateConfig = {}) {
     )
     maxLevel = CONFIG.NAV.DEFAULT_LEVEL
   }
-  // 获取目录绝对路径
-  const dirFullPath = resolve(__dirname, `../${dirName}`)
+  // 获取目录绝对路径 process.cwd()= site-vitepress所在目录
+  const dirFullPath = resolve(process.cwd(), `${rootDir}/${dirName}`)
   // 生成导航数据 [修改：传递ignoreFileNames]
   let result = getNavDataArr(dirFullPath, 1, maxLevel, ignoreDirNames, ignoreFileNames)
 
@@ -372,6 +386,8 @@ export function getNavData(navGenerateConfig: NavGenerateConfig = {}) {
   }
 
   if (debugPrint) {
+    console.log("process.cwd()=", process.cwd())
+    console.log("getNavData dirFullPath: ", dirFullPath)
     console.log('Generated Nav Data:', JSON.stringify(result, (key, value) => {
       if (key === 'link' || key === 'activeMatch') {
         return value || 'undefined'
