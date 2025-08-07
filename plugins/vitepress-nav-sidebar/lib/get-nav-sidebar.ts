@@ -1,5 +1,10 @@
-import { resolve, join, sep } from 'path'
+import { resolve, join, sep, dirname } from 'path'
 import { readdirSync, statSync } from 'fs'
+import { fileURLToPath } from 'url'
+
+// ES module equivalent of __dirname
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = dirname(__filename)
 import { DefaultTheme } from 'vitepress'
 
 // 控制台颜色常量
@@ -38,7 +43,7 @@ function hasText(v: DefaultTheme.NavItem): v is DefaultTheme.NavItem & { text: s
 /**
  * @brief 侧边栏生成配置接口
  */
-interface SidebarGenerateConfig {
+export interface SidebarGenerateConfig {
   /**
    * 需要遍历的目录
    * @default 'articles'
@@ -69,7 +74,7 @@ interface SidebarGenerateConfig {
 /**
  * @brief 侧边栏项接口
  */
-interface SideBarItem {
+export interface SideBarItem {
   /** @brief 显示文本 */
   text: string
   /** @brief 是否可折叠 */
@@ -85,7 +90,7 @@ interface SideBarItem {
 /**
  * @brief 导航生成配置接口
  */
-interface NavGenerateConfig {
+export interface NavGenerateConfig {
   /**
    * 需要遍历的目录
    * @default 'articles'
@@ -172,13 +177,13 @@ export function getSidebarData(sidebarGenerateConfig: SidebarGenerateConfig = {}
   try {
     // 读取目录下所有文件和子目录
     allDirAndFileNameArr = readdirSync(dirFullPath)
-  } catch (e) {
+  } catch (e: any) {
     if (e.code === 'ENOENT') {
       return {}
     }
     throw e
   }
-  const obj = {}
+  const obj: Record<string, SideBarItem[]> = {}
 
   // 遍历目录下的每个子项
   allDirAndFileNameArr.map(dirName => {
@@ -255,7 +260,7 @@ function getSideBarItemTreeData(
     } else {
       return result
     }
-  } catch (e) {
+  } catch (e: any) {
     return result
   }
 
@@ -400,7 +405,7 @@ function getNavDataArr(
     // 读取当前目录下所有文件和子目录
     allDirAndFileNameArr = readdirSync(dirFullPath)
   }
-  catch (e) {
+  catch (e: any) {
     if (e.code === 'ENOENT') {
       return [
         { text: '首页', link: '/' },

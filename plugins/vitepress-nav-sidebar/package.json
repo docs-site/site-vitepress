@@ -1,0 +1,18 @@
+{
+  "name": "@docs-site/vitepress-nav-sidebar",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "./dist/get-nav-sidebar.js",
+  "types": "./dist/get-nav-sidebar.d.ts",
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "scripts": {
+    "build": "tsc",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "A VitePress plugin for automatically generating navigation and sidebar data"
+}

@@ -5,6 +5,7 @@
   "main": "./lib/giscus.ts",
   "types": "./lib/giscus.d.ts",
   "scripts": {
+    "build": "echo \"@docs-site/vitepress-comments does not require compilation!\"",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

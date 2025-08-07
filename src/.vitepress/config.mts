@@ -1,6 +1,6 @@
 import { defineConfig } from 'vitepress'
 import { generateSidebar } from 'vitepress-sidebar';
-import { getSidebarData, getNavData } from './getNavSidebar.mts'
+import { getSidebarData, getNavData } from '@docs-site/vitepress-nav-sidebar'
 import markdownTagPlugin from './theme/tags/md-tags.mjs'
 import { catalogPlugin } from './theme/plugins/vitepress-catdalog/src/catalog-plugin'
 
