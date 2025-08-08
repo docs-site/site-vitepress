@@ -1,8 +1,11 @@
 import { resolve, join } from 'path'
 import { readdirSync, statSync } from 'fs'
 import { DefaultTheme } from 'vitepress'
-import { NavGenerateConfig } from './types.js'
-import { COLOR, CONFIG, DEFAULT_IGNORE_DIRS, DEFAULT_IGNORE_FILES, getDocsDirNameAfterStr, isMarkdownFile, hasText } from './helper.js'
+import { NavGenerateConfig } from './types'
+import { 
+  COLOR, CONFIG, DEFAULT_IGNORE_DIRS, DEFAULT_IGNORE_FILES, 
+  getDocsDirNameAfterStr, isMarkdownFile, hasText 
+} from './helper'
 
 // 获取docs目录的完整路径(从根目录一直到docs目录)
 const docsDirFullPath = join(process.cwd(), 'src')

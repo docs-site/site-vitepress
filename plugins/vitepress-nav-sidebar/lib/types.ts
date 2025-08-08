@@ -1,5 +1,3 @@
-import { DefaultTheme } from 'vitepress'
-
 /**
  * @brief 侧边栏生成配置接口
  */
