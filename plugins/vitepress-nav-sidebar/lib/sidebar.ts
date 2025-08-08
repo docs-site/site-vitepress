@@ -1,7 +1,10 @@
 import { resolve, join, sep } from 'path'
 import { readdirSync, statSync } from 'fs'
-import { SidebarGenerateConfig, SideBarItem } from './types.js'
-import { COLOR, CONFIG, DEFAULT_IGNORE_DIRS, DEFAULT_IGNORE_FILES, getDocsDirNameAfterStr, isMarkdownFile } from './helper.js'
+import { SidebarGenerateConfig, SideBarItem } from './types'
+import { 
+  COLOR, CONFIG, DEFAULT_IGNORE_DIRS, DEFAULT_IGNORE_FILES, 
+  getDocsDirNameAfterStr, isMarkdownFile 
+} from './helper'
 
 // 获取docs目录的完整路径(从根目录一直到docs目录)
 const docsDirFullPath = join(process.cwd(), 'src')

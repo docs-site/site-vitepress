@@ -1,17 +1,16 @@
-import giscus, { AvailableLanguage, GiscusProps } from '@giscus/vue';
+import { AvailableLanguage, GiscusProps } from '@giscus/vue';
 import { Ref } from 'vue';
 import { PageData, Route } from 'vitepress';
-
 type vitepressAPI = {
-  frontmatter: Ref<PageData['frontmatter']>;
-  route: Route;
+    frontmatter: Ref<PageData['frontmatter']>;
+    route: Route;
 };
 type GiscusPropsType = GiscusProps & {
-  lightTheme?: string;
-  darkTheme?: string;
-  lang?: AvailableLanguage;
-  locales?: Record<string, string>;
-  homePageShowComment?: boolean;
+    lightTheme?: string;
+    darkTheme?: string;
+    lang?: AvailableLanguage;
+    locales?: Record<string, string>;
+    homePageShowComment?: boolean;
 };
 /**
  * initialize comment area

@@ -4,8 +4,15 @@
 
 [![node](https://badgen.net/static/node/v22.16.0/F96854)](https://nodejs.org/dist/v22.16.0/node-v22.16.0-win-x64.zip)&nbsp;&nbsp;&nbsp;&nbsp;[![npm](https://badgen.net/static/npm/10.9.2/F96854)](https://badgen.net/static/npm/10.9.2/F96854)&nbsp;&nbsp;&nbsp;&nbsp;[![pnpm](https://badgen.net/static/pnpm/10.11.1/F96854)](https://github.com/pnpm/pnpm)&nbsp;&nbsp;&nbsp;&nbsp;[![vitepress](https://badgen.net/static/vitepress/1.6.3/cyan)](https://github.com/vuejs/vitepress/releases/tag/v1.6.3)
 
+# <font size=3>二、构建说明</font>
 
-# <font size=3>二、小徽章</font>
+```bash
+npm run build --workspace=plugins       # 构建工作区所有插件
+npm run build:stub --workspace=plugins  # 开启 stub 模式后你的构建产物里是使用的 jiti 来做链接，这样只需要构建一次，后续所有的源码改动都可以实时得到反应。
+
+```
+
+# <font size=3>三、小徽章</font>
 
 >- [badgen.net](https://badgen.net/)
 >- [Shields.io | Shields.io](https://shields.io/)

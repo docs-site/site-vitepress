@@ -6,6 +6,8 @@
   "types": "./lib/giscus.d.ts",
   "scripts": {
     "build": "echo \"@docs-site/vitepress-comments does not require compilation!\"",
+    "build-stub": "echo \"@docs-site/vitepress-comments does not require compilation!\"",
+    "build:tsc": "tsc --project tsconfig.prod.json",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

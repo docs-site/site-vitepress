@@ -1,14 +1,17 @@
 {
   "scripts": {
-    "docs:dev": "npm run build:plugins && vitepress dev src",
-    "docs:build": "npm run build:plugins && vitepress build src",
-    "docs:preview": "npm run build:plugins && vitepress preview src",
-    "build:plugins": "npm run build --workspace=plugins"
+    "docs:dev": "vitepress dev src",
+    "docs:build": "npm run plugins:build && vitepress build src",
+    "docs:preview": "vitepress preview src",
+    "plugins:build": "npm run build --workspace=plugins",
+    "plugins:build-stub": "npm run build-stub --workspace=plugins",
+    "plugins:build:tsc": "npm run build:tsc --workspace=plugins"
   },
   "devDependencies": {
     "@mdit-vue/shared": "^2.1.4",
     "@types/node": "^24.0.1",
     "markdown-it-mathjax3": "^4.3.2",
+    "unbuild": "^3.6.0",
     "vitepress": "^1.6.3",
     "vitepress-sidebar": "^1.31.1"
   },
