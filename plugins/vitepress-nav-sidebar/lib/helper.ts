@@ -60,5 +60,6 @@ export function getDocsDirNameAfterStr(dirOrFileFullName: string, docsDirFullPat
   if (!result.startsWith(sep)) {
     result = sep + result
   }
+  
   return result
 }

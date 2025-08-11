@@ -120,6 +120,10 @@ navData:
         title: "Typescript"
         desc: "深入理解 TypeScript"
         link: "https://jkchao.github.io/typescript-book-chinese/"
+      - icon: "/icons/typescript.svg"
+        title: "Typescript"
+        desc: "TypeScript使用指南"
+        link: "https://typescript.uihtm.com/"
   - title: "React 生态"
     items:
       - icon: "https://zh-hans.reactjs.org/favicon.ico"

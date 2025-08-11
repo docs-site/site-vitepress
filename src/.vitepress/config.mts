@@ -9,7 +9,10 @@ export default defineConfig({
   vite: {
     plugins: [
       catalogPlugin({ srcDir: 'src' })
-    ]
+    ],
+    build: {
+      chunkSizeWarningLimit: 1500, // warn: Some chunks are larger than 500kb after minification
+    },
   },
   title: "苏木",
   lang: 'zh-CN',
