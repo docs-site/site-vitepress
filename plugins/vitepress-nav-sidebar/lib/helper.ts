@@ -54,12 +54,18 @@ export function isMarkdownFile(fileName: string) {
  * /a-root-docs/docs/docs/test → /docs/test
  */
 export function getDocsDirNameAfterStr(dirOrFileFullName: string, docsDirFullPathLen: number) {
+  // 打印传入参数
+  // console.log('getDocsDirNameAfterStr - Input params:', { dirOrFileFullName, docsDirFullPathLen });
+  
   // 使用字符串截取方式避免多层目录都叫docs的问题
   let result = dirOrFileFullName.substring(docsDirFullPathLen)
   // 确保路径以斜杠开头，但不重复添加
   if (!result.startsWith(sep)) {
     result = sep + result
   }
+  
+  // 打印传出参数
+  // console.log('getDocsDirNameAfterStr - Output result:', result);
   
   return result
 }

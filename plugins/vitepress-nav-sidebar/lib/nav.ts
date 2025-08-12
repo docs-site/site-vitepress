@@ -7,11 +7,6 @@ import {
   getDocsDirNameAfterStr, isMarkdownFile, hasText 
 } from './helper'
 
-// 获取docs目录的完整路径(从根目录一直到docs目录)
-const docsDirFullPath = join(process.cwd(), 'src')
-// 获取docs目录的完整路径长度
-const docsDirFullPathLen = docsDirFullPath.length
-
 /**
  * @brief 生成导航数据
  * @param navGenerateConfig 导航生成配置
@@ -38,8 +33,11 @@ export function getNavData(navGenerateConfig: NavGenerateConfig = {}) {
   }
   // 获取目录绝对路径 process.cwd()= site-vitepress所在目录
   const dirFullPath = resolve(process.cwd(), `${rootDir}/${dirName}`)
-  // 生成导航数据 [传递ignoreFileNames]
-  let result = getNavDataArr(dirFullPath, 1, maxLevel, ignoreDirNames, ignoreFileNames)
+  // 获取root目录路径长度，用于计算相对链接 (相对于rootDir而非dirName)
+  const rootDirPath = resolve(process.cwd(), rootDir)
+  const rootDirPathLen = rootDirPath.length
+  // 生成导航数据 [传递ignoreFileNames和rootDirPathLen]
+  let result = getNavDataArr(dirFullPath, rootDirPathLen, 1, maxLevel, ignoreDirNames, ignoreFileNames)
 
   // 如果结果为空，添加默认导航项
   if (result.length === 0) {
@@ -67,6 +65,7 @@ export function getNavData(navGenerateConfig: NavGenerateConfig = {}) {
 /**
  * @brief 递归生成导航数据数组
  * @param dirFullPath 当前目录完整路径
+ * @param rootDirPathLen root目录完整路径长度，用于计算相对链接
  * @param level 当前层级
  * @param maxLevel 最大允许层级
  * @param ignoreDirNames 要忽略的目录名数组
@@ -76,6 +75,7 @@ export function getNavData(navGenerateConfig: NavGenerateConfig = {}) {
  */
 function getNavDataArr(
   dirFullPath: string,
+  rootDirPathLen: number,
   level: number,
   maxLevel: number,
   ignoreDirNames: string[] = [],
@@ -101,7 +101,8 @@ function getNavDataArr(
     const fileOrDirFullPath = join(dirFullPath, fileOrDirName)
     const stats = statSync(fileOrDirFullPath)
     // 生成链接路径
-    const link = getDocsDirNameAfterStr(fileOrDirFullPath, docsDirFullPathLen).replace('.md', '').replace(/\\/g, '/')
+    const link = getDocsDirNameAfterStr(fileOrDirFullPath, rootDirPathLen).replace('.md', '').replace(/\\/g, '/')
+
     // 处理显示文本(去除前面的数字前缀)
     const text = fileOrDirName.match(/^[0-9]{2}-.+/) ? fileOrDirName.substring(3) : fileOrDirName
 
@@ -120,7 +121,7 @@ function getNavDataArr(
 
       if (level !== maxLevel) {
         // 获取下一层级的导航数据
-        const arr = getNavDataArr(fileOrDirFullPath, level + 1, maxLevel, ignoreDirNames, ignoreFileNames)
+        const arr = getNavDataArr(fileOrDirFullPath, rootDirPathLen, level + 1, maxLevel, ignoreDirNames, ignoreFileNames)
           // 过滤出包含text属性的项
           .filter(hasText)
           // 过滤掉index.md项

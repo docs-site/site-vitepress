@@ -6,11 +6,6 @@ import {
   getDocsDirNameAfterStr, isMarkdownFile 
 } from './helper'
 
-// 获取docs目录的完整路径(从根目录一直到docs目录)
-const docsDirFullPath = join(process.cwd(), 'src')
-// 获取docs目录的完整路径长度
-const docsDirFullPathLen = docsDirFullPath.length
-
 /**
  * @brief 生成侧边栏数据
  * @param sidebarGenerateConfig 侧边栏生成配置
@@ -38,6 +33,9 @@ export function getSidebarData(sidebarGenerateConfig: SidebarGenerateConfig = {}
 
   // 获取目录的绝对路径
   const dirFullPath = resolve(process.cwd(), `${rootDir}/${dirName}`)
+  // 获取root目录路径长度，用于计算相对链接 (相对于rootDir而非dirName)
+  const rootDirPath = resolve(process.cwd(), rootDir)
+  const rootDirPathLen = rootDirPath.length
   let allDirAndFileNameArr: string[] = []
   try {
     // 读取目录下所有文件和子目录
@@ -56,12 +54,12 @@ export function getSidebarData(sidebarGenerateConfig: SidebarGenerateConfig = {}
     const stats = statSync(subDirFullName)
 
     // 生成侧边栏项的key和对应的树形数据
-    let property = getDocsDirNameAfterStr(subDirFullName, docsDirFullPathLen).replace(/\\/g, '/')
+    let property = getDocsDirNameAfterStr(subDirFullName, rootDirPathLen).replace(/\\/g, '/')
     if (stats.isDirectory()) {
       property += '/'
     }
-    // 修改：传递ignoreFileNames数组 [重要修改]
-    const arr = getSideBarItemTreeData(subDirFullName, 1, maxLevel, ignoreFileNames, ignoreDirNames)
+    // 修改：传递ignoreFileNames数组和rootDirPathLen [重要修改]
+    const arr = getSideBarItemTreeData(subDirFullName, rootDirPathLen, 1, maxLevel, ignoreFileNames, ignoreDirNames)
 
     // 确保不重复添加相同的路径
     if (!obj[property]) {
@@ -87,6 +85,7 @@ export function getSidebarData(sidebarGenerateConfig: SidebarGenerateConfig = {}
 /**
  * @brief 递归生成侧边栏树形数据
  * @param dirFullPath 当前目录完整路径
+ * @param rootDirPathLen root目录完整路径长度，用于计算相对链接
  * @param level 当前层级
  * @param maxLevel 最大允许层级
  * @param ignoreFileNames 要忽略的文件名数组
@@ -96,6 +95,7 @@ export function getSidebarData(sidebarGenerateConfig: SidebarGenerateConfig = {}
  */
 function getSideBarItemTreeData(
   dirFullPath: string,
+  rootDirPathLen: number,
   level: number,
   maxLevel: number,
   ignoreFileNames: string[],
@@ -120,7 +120,7 @@ function getSideBarItemTreeData(
 
         result.push({
           text,
-          link: getDocsDirNameAfterStr(dirFullPath, docsDirFullPathLen).replace('.md', '').replace(/\\/g, '/')
+          link: getDocsDirNameAfterStr(dirFullPath, rootDirPathLen).replace('.md', '').replace(/\\/g, '/')
         })
       }
       return result
@@ -158,6 +158,7 @@ function getSideBarItemTreeData(
         if (level !== maxLevel) {
           dirData.items = getSideBarItemTreeData(
             fileOrDirFullPath,
+            rootDirPathLen,
             level + 1,
             maxLevel,
             ignoreFileNames,
@@ -191,7 +192,7 @@ function getSideBarItemTreeData(
       // 创建文件项数据
       const fileData: SideBarItem = {
         text,
-        link: getDocsDirNameAfterStr(fileOrDirFullPath, docsDirFullPathLen).replace('.md', '').replace(/\\/g, '/'),
+        link: getDocsDirNameAfterStr(fileOrDirFullPath, rootDirPathLen).replace('.md', '').replace(/\\/g, '/'),
       }
 
       result.push(fileData)
