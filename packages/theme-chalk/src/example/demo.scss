@@ -1,0 +1,47 @@
+@use "sass:color"; // 导入 sass:color 模块
+
+// 基础样式变量
+$primary-color: #409EFF;
+$success-color: #67C23A;
+$warning-color: #E6A23C;
+$danger-color: #F56C6C;
+$info-color: #909399;
+
+// 基础样式
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  color: #333;
+  line-height: 1.5;
+}
+
+// 按钮样式
+.button {
+  display: inline-block;
+  padding: 8px 16px;
+  border-radius: 4px;
+  background: $primary-color;
+  color: white;
+  text-decoration: none;
+  transition: background-color 0.3s;
+
+  &:hover {
+    background: color.adjust($primary-color, $lightness: -10%);
+  }
+}
+
+// 状态类
+.success {
+  color: $success-color;
+}
+
+.warning {
+  color: $warning-color;
+}
+
+.danger {
+  color: $danger-color;
+}
+
+.info {
+  color: $info-color;
+}

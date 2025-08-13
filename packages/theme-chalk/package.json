@@ -1,0 +1,24 @@
+{
+  "name": "@docs-site/theme-chalk",
+  "version": "1.0.0",
+  "main": "index.js",
+  "devDependencies": {
+    "@types/node": "^24.2.1",
+    "autoprefixer": "^10.4.21",
+    "cssnano": "^7.1.0",
+    "fast-glob": "^3.3.3",
+    "picocolors": "^1.1.1",
+    "postcss": "^8.5.6",
+    "postcss-nested": "^7.0.2",
+    "sass": "^1.90.0",
+    "tsx": "^4.20.4"
+  },
+  "scripts": {
+    "scss:build": "tsx theme-chalk.ts",
+    "test": "start ./test/index.html"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": ""
+}
