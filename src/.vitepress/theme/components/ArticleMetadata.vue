@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { useData } from 'vitepress'
-import { computed, ref, onMounted } from 'vue'
+import { computed, ref, onMounted, watch } from 'vue'
 
 const { page } = useData()
 
@@ -108,6 +108,14 @@ function analyze() {
 onMounted(() => {
     // 初始化时执行一次
     analyze()
+})
+
+// 监听页面数据变化，重新执行分析函数
+watch(page, () => {
+    // 确保DOM已经更新后再执行分析
+    setTimeout(() => {
+        analyze()
+    }, 0)
 })
 </script>
 
