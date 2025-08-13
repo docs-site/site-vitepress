@@ -19,7 +19,7 @@ import codeblocksFold from './plugins/vitepress-code-folding/src/code-folding'; 
 import giscusTalk from '@docs-site/vitepress-comments';
 
 import './style.css'
-
+import '@docs-site/theme-chalk/src/vp-code.scss'; /* vp-ode styles */
 export default {
   extends: DefaultTheme,
   Layout: () => {

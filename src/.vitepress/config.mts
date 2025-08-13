@@ -13,6 +13,14 @@ export default defineConfig({
     build: {
       chunkSizeWarningLimit: 1500, // warn: Some chunks are larger than 500kb after minification
     },
+    // 解决项目启动后终端打印 Scss 的废弃警告：The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+    css: { 
+      preprocessorOptions: { 
+        scss: { 
+          api: "modern" 
+        } 
+      } 
+    },
   },
   title: "苏木",
   lang: 'zh-CN',
