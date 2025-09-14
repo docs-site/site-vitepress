@@ -19,9 +19,6 @@ hero:
     - theme: alt
       text: 01-前端相关
       link: /sdoc/01-前端相关/
-    - theme: alt
-      text: 02-嵌入式开发
-      link: /sdoc/02-嵌入式开发/
   image:
     src: /images/blog.svg
     alt: VitePress
